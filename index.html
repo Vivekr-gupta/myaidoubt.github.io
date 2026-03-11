@@ -509,7 +509,7 @@ textarea::placeholder {
         <span class="photo-btn-label" id="gallerySubLabel">From gallery</span>
       </label>
     </div>
-    <input type="file" id="cameraInput" accept="image/*" capture="camera" style="display:none" onchange="handlePhoto(event)">
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
     <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="handlePhoto(event)">
     <div class="photo-preview-wrap" id="photoPreviewWrap">
       <img id="photoPreview" src="" alt="Question">
@@ -553,7 +553,7 @@ textarea::placeholder {
   <!-- Footer -->
   <div class="footer">
     <div class="footer-badge">Made with <span class="footer-heart">❤️</span> for Students</div>
-    <button id="installBtn" style="display:none; margin-top:14px; background:linear-gradient(135deg,#FF416C,#FFD700); color:#fff; border:none; border-radius:12px; padding:12px 28px; font-size:15px; font-weight:700; cursor:pointer;">📲 Install App on Phone</button>
+  <button id="installBtn" style="display:none; margin-top:14px; background:linear-gradient(135deg,#6c63ff,#ff6b9d); color:#fff; border:none; border-radius:16px; padding:14px 28px; font-size:15px; font-weight:700; cursor:pointer; width:100%; box-shadow: 0 8px 24px rgba(108,99,255,0.35);">📱 Install AI Doubt Solver for faster doubt solving!</button>
   </div>
 
 </div>
@@ -697,7 +697,7 @@ function handlePhoto(event) {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const MAX = 600;
+      const MAX = 800;
       let w = img.width, h = img.height;
       if (w > MAX || h > MAX) {
         if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
@@ -707,7 +707,15 @@ function handlePhoto(event) {
       const ctx = canvas.getContext('2d');
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(img, 0, 0, w, h);
-      const compressed = canvas.toDataURL('image/jpeg', 0.5);
+
+      // Compress until under 1MB
+      let quality = 0.7;
+      let compressed = canvas.toDataURL('image/jpeg', quality);
+      while (compressed.length > 1.2 * 1024 * 1024 && quality > 0.2) {
+        quality -= 0.1;
+        compressed = canvas.toDataURL('image/jpeg', quality);
+      }
+
       photoBase64 = compressed.split(',')[1];
       document.getElementById('photoPreview').src = compressed;
       document.getElementById('photoPreviewWrap').style.display = 'block';
@@ -733,12 +741,19 @@ function showToast(msg) {
 
 function shareAnswer() {
   if (!lastAnswer) return;
-  const text = `Question: ${document.getElementById('doubtInput').value}\n\nAnswer: ${lastAnswer}\n\n— Solved by MyAIDoubt ⚡`;
-  if (navigator.share) {
-    navigator.share({ title: 'Doubt Solved!', text });
-  } else {
-    navigator.clipboard.writeText(text).then(() => showToast('✅ Copied to clipboard!'));
-  }
+  const text = `Doubt Solved!\nQuestion: ${document.getElementById('doubtInput').value}\n\nAnswer: ${lastAnswer}\n\n— Solved by MyAIDoubt ⚡`;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✅ Copied to clipboard!');
+  }).catch(() => {
+    // Fallback for older browsers
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast('✅ Copied to clipboard!');
+  });
 }
 
 function renderFractions(text) {
