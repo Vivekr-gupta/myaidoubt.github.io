@@ -71,8 +71,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0 8px;
-  margin-bottom: 8px;
+  padding: 4px 0 4px;
+  margin-bottom: 4px;
 }
 
 .topbar-logo {
@@ -140,7 +140,7 @@ body {
 }
 
 /* Header */
-.header { text-align: center; padding: 20px 0 20px; animation: slideDown 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+.header { text-align: center; padding: 8px 0 12px; animation: slideDown 0.8s cubic-bezier(0.16,1,0.3,1) both; }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 
 .badge {
@@ -416,6 +416,49 @@ textarea::placeholder {
 .footer-heart { color: #ff6b9d; display: inline-block; animation: heartbeat 1.5s infinite; }
 @keyframes heartbeat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.3); } }
 
+/* Note 6 - Example questions */
+.example-wrap { margin: 0 0 12px; animation: fadeUp 0.7s 0.22s both; }
+.example-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.example-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.example-pill {
+  padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 500;
+  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+  cursor: pointer; transition: all 0.2s;
+}
+.example-pill:hover { border-color: rgba(108,99,255,0.4); color: var(--text); }
+
+/* Note 6 - Example hints inside input card */
+.example-hints {
+  padding: 6px 0 2px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+.example-hint-label { font-weight: 700; margin-right: 4px; opacity: 0.6; }
+.example-hint { opacity: 0.55; font-style: italic; }
+.example-hint-sep { margin: 0 5px; opacity: 0.3; }
+
+/* Feature 7 - Others dropdown */
+.others-menu {
+  display: none;
+  position: fixed;
+  background: var(--card);
+  border: 1.5px solid rgba(108,99,255,0.4);
+  border-radius: 16px;
+  padding: 8px;
+  z-index: 9999;
+  min-width: 210px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+.others-menu.open { display: block; animation: fadeUp 0.2s ease; }
+.others-item {
+  padding: 10px 14px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; color: var(--text); transition: all 0.15s;
+}
+.others-item:hover { background: rgba(108,99,255,0.12); color: #a09aff; }
+
 /* Bug 7 - Detected question box */
 .detected-box {
   background: rgba(0,229,255,0.05);
@@ -503,14 +546,14 @@ textarea::placeholder {
     <div class="pill che" onclick="selectSubject(this,'Chemistry')">🧪 Chemistry</div>
     <div class="pill mat" onclick="selectSubject(this,'Maths')">📐 Maths</div>
     <div class="pill bio" onclick="selectSubject(this,'Biology')">🧬 Biology</div>
-    <div class="pill gen" onclick="selectSubject(this,'Others')">💡 Others</div>
+    <div class="pill gen" id="othersBtn" onclick="toggleOthersMenu(event)">💡 Others ▾</div>
   </div>
 
   <!-- Mode Toggle -->
   <div class="mode-wrap">
     <div class="mode-tabs">
       <div class="mode-tab active" id="modeExplain" onclick="setMode('explain')">📖 Explanation</div>
-      <div class="mode-tab" id="modeFlash" onclick="setMode('flash')">⚡ Flash</div>
+      <div class="mode-tab" id="modeFlash" onclick="setMode('flash')">⚡ Quick Answer</div>
     </div>
     <div class="mode-desc" id="modeDesc">Step-by-step detailed answer</div>
   </div>
@@ -524,6 +567,14 @@ textarea::placeholder {
       <div class="input-label" id="inputLabel">Your Doubt</div>
     </div>
     <textarea id="doubtInput" placeholder="Type your question here..." rows="4" oninput="updateCount()"></textarea>
+    <div class="example-hints">
+      <span class="example-hint-label">e.g.</span>
+      <span class="example-hint">Solve x² + 5x + 6 = 0</span>
+      <span class="example-hint-sep">•</span>
+      <span class="example-hint">Explain photosynthesis</span>
+      <span class="example-hint-sep">•</span>
+      <span class="example-hint">What is rotational motion</span>
+    </div>
     <div class="input-footer">
       <span id="charCount">0 / 500</span>
       <span id="subjectLabel">Physics • Class 11-12</span>
@@ -686,7 +737,7 @@ function setMode(mode) {
   document.getElementById('modeFlash').classList.toggle('active', mode === 'flash');
   document.getElementById('modeDesc').textContent = mode === 'explain'
     ? 'Step-by-step detailed answer'
-    : 'Direct one-line answer only';
+    : 'Direct answer only — no steps';
 }
 
 function setLang(lang) {
@@ -717,6 +768,39 @@ function selectSubject(el, subject) {
   selectedSubject = subject;
   updateSubjectLabel();
 }
+
+// Feature 7 - Others dropdown with fixed positioning
+function toggleOthersMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('othersMenu');
+  const btn = document.getElementById('othersBtn');
+  const rect = btn.getBoundingClientRect();
+  // Position menu just below the button using fixed coords (no scroll issue!)
+  menu.style.top = (rect.bottom + 6) + 'px';
+  // Align right edge with screen edge if needed
+  const menuWidth = 210;
+  let left = rect.left;
+  if (left + menuWidth > window.innerWidth - 8) {
+    left = window.innerWidth - menuWidth - 8;
+  }
+  menu.style.left = left + 'px';
+  menu.classList.toggle('open');
+}
+
+function selectOthers(subject) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  const btn = document.getElementById('othersBtn');
+  btn.classList.add('active');
+  btn.textContent = subject + ' ▾';
+  selectedSubject = subject.replace(/^[^\w]+/, '').trim();
+  document.getElementById('othersMenu').classList.remove('open');
+  updateSubjectLabel();
+}
+
+// Close others menu when clicking outside
+document.addEventListener('click', () => {
+  document.getElementById('othersMenu')?.classList.remove('open');
+});
 
 function updateSubjectLabel() {
   document.getElementById('subjectLabel').textContent = selectedSubject + ' • ' + selectedClass;
@@ -925,47 +1009,50 @@ ${ownerInstruction}
 
 LEVEL: ${level}
 
-ANSWER FORMAT — ALWAYS follow this exact structure:
-Problem: [one line restatement]
+THINK FIRST (Note 2):
+Before solving, analyze the problem carefully. Identify the correct method or theorem. Then solve step by step.
 
-Key Idea: [main concept or formula used — 1 line only]
+ANSWER FORMAT — always follow exactly:
+Problem: [restate in one line]
 
-Step 1: [calculation]
+Concept Used: [formula or theorem — one line]
 
-Step 2: [calculation]
+Step 1: [calculation only — no long text]
 
-Step 3: [calculation]
+Step 2: [calculation only]
 
-★ Final Answer: [result clearly stated]
+Step 3: [calculation only]
+
+★ Final Answer: [result clearly]
 
 MATH FORMAT RULES:
 - ZERO LaTeX. ZERO backslashes. ZERO {braces}. ZERO dollar signs.
-- Subscripts: write x₁ x₂ x₃ log₂ log₃ — use actual subscript characters
-- Powers: write x² x³ x⁻¹ — use actual superscript characters
-- Square root: write √x or √(expression)
-- Infinity: write ∞
+- Subscripts: x₁ x₂ x₃ log₂ log₃ — use actual subscript characters
+- Powers: x² x³ x⁻¹ — use actual superscript characters
+- Square root: √x or √(expression) — never write sqrt
+- Infinity: ∞ — never write "infinity"
 - Fractions: write as (a)/(b)
-- Trig: always write full sin, cos, tan, log — never abbreviate
+- Trig: always write sin, cos, tan, log in full
 - Keep full equation on one line — never break mid-expression
 
-CONTENT RULES (Bug 2 — less text):
-- JEE/NEET level: skip obvious explanations, show only key steps + formula + answer
-- No long text paragraphs — math should speak for itself
-- Never repeat same thing twice
-- No "we know that", "it is given that", "therefore we can say" — just show the math
-- Max 5 steps total
+CONTENT RULES (Note 3 — keep it short):
+- Prefer numbered steps over long paragraphs
+- No "we know that", "it is given that" — just show the math
+- JEE/NEET: skip obvious steps, show only key calculations
+- Max 5 steps — summarize if longer
+- Never repeat same explanation
 
-KEY POINT RULE (Bug 5 — highlight):
-- Mark important formulas or identities with ★ before them
-- Example: ★ AM-GM: (a+b+c)/3 ≥ (abc)^(1/3)
+KEY POINT RULE:
+- Mark important formulas with ★ before them
+- Example: ★ AM-GM: (a+b)/2 ≥ √(ab)
 
-FINAL ANSWER RULE (Bug 6):
+FINAL ANSWER RULE:
 - Always end with: ★ Final Answer: [result]
-- Put final answer on its own line clearly
+- Final answer on its own line
 
-SUBSTITUTION RULE (Bug 4):
-- If you make a substitution, explain it in ONE line before using it
-- Example: "Let y = log₃x, so y₁+y₂+y₃ = 9"
+SUBSTITUTION RULE:
+- Explain substitution in ONE line before using it
+- Example: Let y = log₃x, so y₁+y₂+y₃ = 9
 
 Start directly — no "Sure!", no intro, no outro.`;
 
@@ -1109,5 +1196,15 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(swUrl).catch(() => {});
 }
 </script>
+
+  <!-- Others dropdown at body level -->
+  <div class="others-menu" id="othersMenu">
+    <div class="others-item" onclick="selectOthers('🌍 Social Science')">🌍 Social Science</div>
+    <div class="others-item" onclick="selectOthers('💻 Computer Science')">💻 Computer Science</div>
+    <div class="others-item" onclick="selectOthers('📝 English')">📝 English</div>
+    <div class="others-item" onclick="selectOthers('📊 Economics')">📊 Economics</div>
+    <div class="others-item" onclick="selectOthers('📈 Business Studies')">📈 Business Studies</div>
+    <div class="others-item" onclick="selectOthers('💡 Others')">💡 Others</div>
+  </div>
 </body>
 </html>
