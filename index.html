@@ -319,7 +319,7 @@ textarea::placeholder {
 .error-card { display: none; background: rgba(255,59,48,0.07); border: 1px solid rgba(255,59,48,0.18); border-radius: 14px; padding: 14px 18px; color: #ff8080; font-size: 13px; margin-top: 12px; }
 
 /* Answer card */
-.answer-card { display: none; margin-top: 14px; border-radius: 20px; overflow: hidden; animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; border: 1px solid rgba(108,99,255,0.15); }
+.answer-card { display: none; margin-top: 14px; border-radius: 20px; overflow: hidden; animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; border: 1px solid rgba(108,99,255,0.15); margin-left: -16px; margin-right: -16px; border-radius: 0; }
 
 .answer-header { background: linear-gradient(135deg,rgba(108,99,255,0.12),rgba(255,107,157,0.06)); padding: 14px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
 .ai-avatar { width: 36px; height: 36px; background: linear-gradient(135deg,#6c63ff,#ff6b9d); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
@@ -379,7 +379,28 @@ textarea::placeholder {
 }
 .share-btn:hover { background: rgba(108,99,255,0.25); }
 
-.answer-body { background: var(--answer-bg); padding: 22px; font-size: 16px; line-height: 1.9; color: var(--text); white-space: pre-wrap; word-break: break-word; font-weight: 450; letter-spacing: -0.1px; }
+.answer-body { background: var(--answer-bg); padding: 16px; font-size: 15px; line-height: 1.8; color: var(--text); white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; word-wrap: break-word; font-weight: 450; letter-spacing: -0.1px; max-width: 100%; }
+
+/* Final Answer Box - Bug 6 */
+.final-answer-box {
+  background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(108,99,255,0.1));
+  border: 2px solid rgba(0,229,255,0.4);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 12px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #00e5ff;
+}
+
+/* Key point highlight - Bug 5 */
+.key-point {
+  background: rgba(255,190,11,0.1);
+  border-left: 3px solid #ffbe0b;
+  padding: 6px 10px;
+  margin: 4px 0;
+  border-radius: 0 8px 8px 0;
+}
 
 /* History */
 .history-wrap { margin-top: 24px; display: none; }
@@ -394,6 +415,20 @@ textarea::placeholder {
 .footer-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 6px 14px; font-size: 11px; color: var(--muted); }
 .footer-heart { color: #ff6b9d; display: inline-block; animation: heartbeat 1.5s infinite; }
 @keyframes heartbeat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+
+/* Bug 7 - Detected question box */
+.detected-box {
+  background: rgba(0,229,255,0.05);
+  border: 1px solid rgba(0,229,255,0.2);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--accent3);
+  display: none;
+}
+.detected-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; opacity: 0.7; }
+.detected-text { color: var(--text); font-size: 14px; line-height: 1.5; }
 
 /* Toast notification */
 .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1a1a2e; border: 1px solid rgba(108,99,255,0.3); color: white; padding: 12px 24px; border-radius: 100px; font-size: 13px; font-weight: 600; z-index: 999; transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); white-space: nowrap; }
@@ -514,6 +549,10 @@ textarea::placeholder {
     <div class="photo-preview-wrap" id="photoPreviewWrap">
       <img id="photoPreview" src="" alt="Question">
       <button class="remove-photo" onclick="removePhoto()">✕</button>
+    </div>
+    <div class="detected-box" id="detectedBox">
+      <div class="detected-label">📷 Detected Question</div>
+      <div class="detected-text" id="detectedText"></div>
     </div>
   </div>
 
@@ -731,6 +770,7 @@ function handlePhoto(event) {
 function removePhoto() {
   photoBase64 = null; photoMediaType = null;
   document.getElementById('photoPreviewWrap').style.display = 'none';
+  document.getElementById('detectedBox').style.display = 'none';
   document.getElementById('cameraInput').value = '';
   document.getElementById('galleryInput').value = '';
 }
@@ -781,19 +821,52 @@ ${pad(den)}
 function cleanAnswer(text) {
   // Remove DeepSeek R1 thinking block
   text = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
   return text
+    // Remove LaTeX environments like {vmatrix}, {matrix}, {pmatrix} etc
+    .replace(/\\begin\{[^}]+\}/g, '\n[').replace(/\\end\{[^}]+\}/g, ']\n')
+    .replace(/\{[a-zA-Z]+\}/g, '')
+    // Fix trig functions being cut (sin,cos,tan,log etc)
+    .replace(/\\sin/g,'sin').replace(/\\cos/g,'cos').replace(/\\tan/g,'tan')
+    .replace(/\\cot/g,'cot').replace(/\\sec/g,'sec').replace(/\\cosec/g,'cosec')
+    .replace(/\\log/g,'log').replace(/\\ln/g,'ln').replace(/\\exp/g,'exp')
+    .replace(/\\lim/g,'lim').replace(/\\det/g,'det').replace(/\\int/g,'∫')
+    .replace(/\\sum/g,'Σ').replace(/\\prod/g,'Π')
+    // Fix LaTeX math
     .replace(/\$\$[\s\S]*?\$\$/g, m => m.replace(/\\/g,'').replace(/\$/g,''))
     .replace(/\$([^$\n]+)\$/g, '$1')
     .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)')
     .replace(/\\left/g,'').replace(/\\right/g,'')
-    .replace(/\\infty/g,'infinity')
-    .replace(/\\geq/g,'>=').replace(/\\leq/g,'<=')
+    // Bug D - use ∞ instead of infinity
+    .replace(/\\infty/g,'∞').replace(/\binfinity\b/g,'∞')
+    .replace(/\\geq/g,'≥').replace(/\\leq/g,'≤')
     .replace(/\\neq/g,'≠').replace(/\\approx/g,'≈')
     .replace(/\\times/g,'×').replace(/\\cdot/g,'·')
-    .replace(/\\sqrt\{([^}]+)\}/g,'sqrt($1)')
+    .replace(/\\pm/g,'±').replace(/\\mp/g,'∓')
+    .replace(/\\alpha/g,'α').replace(/\\beta/g,'β').replace(/\\gamma/g,'γ')
+    .replace(/\\delta/g,'δ').replace(/\\theta/g,'θ').replace(/\\lambda/g,'λ')
+    .replace(/\\mu/g,'μ').replace(/\\pi/g,'π').replace(/\\sigma/g,'σ')
+    .replace(/\\omega/g,'ω').replace(/\\phi/g,'φ')
+    // Bug F - use √ instead of sqrt
+    .replace(/\\sqrt\{([^}]+)\}/g,'√($1)')
+    .replace(/\bsqrt\(([^)]+)\)/g,'√($1)')
+    .replace(/\bsqrt\b/g,'√')
+    // Bug A - superscript powers including negative (x⁻², x³ etc)
+    .replace(/\^\{-(\d+)\}/g, (_,n) => '\u207B'+[...n].map(d=>'\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079'[d]).join(''))
+    .replace(/\^-(\d+)/g, (_,n) => '\u207B'+[...n].map(d=>'\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079'[d]).join(''))
+    .replace(/\^\{(\d+)\}/g, (_,n) => [...n].map(d=>'\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079'[d]).join(''))
+    .replace(/\^(\d+)/g, (_,n) => [...n].map(d=>'\u2070\u00B9\u00B2\u00B3\u2074\u2075\u2076\u2077\u2078\u2079'[d]).join(''))
+    // Bug 1 - subscript numbers and letters
+    .replace(/_\{([^}]+)\}/g, (_, s) => [...s].map(c => '₀₁₂₃₄₅₆₇₈₉'.includes('₀₁₂₃₄₅₆₇₈₉'[c]) ? '₀₁₂₃₄₅₆₇₈₉'[c] : c).join(''))
+    .replace(/_([0-9])/g, (_, n) => '₀₁₂₃₄₅₆₇₈₉'[n])
+    .replace(/log_([0-9])/g, (_, n) => 'log' + '₀₁₂₃₄₅₆₇₈₉'[n])
+    // Clean remaining LaTeX
     .replace(/\\text\{([^}]+)\}/g,'$1')
     .replace(/\\[a-zA-Z]+/g,'')
     .replace(/\\/g,'')
+    // Remove LaTeX table separators
+    .replace(/&/g,' ').replace(/\\\\/g,'\n')
+    // Clean markdown
     .replace(/#{1,6}\s/g,'')
     .replace(/\*\*/g,'').replace(/\*/g,'')
     .replace(/\n{3,}/g,'\n\n')
@@ -844,35 +917,57 @@ async function solveDoubt() {
 ${ownerInstruction}
 FLASH MODE — Give ONLY the direct final answer in maximum 1-2 lines.
 No steps. No explanation. No intro. Just the answer.
-ZERO LaTeX. ZERO dollar signs. ZERO backslashes.
-Fractions: write as (a)/(b), powers: x^2, sqrt for square root.`
+ZERO LaTeX. ZERO dollar signs. ZERO backslashes. ZERO {braces}.
+Powers: use x², x³. Square root: √(x). Infinity: ∞. Trig: sin, cos, tan.`
 
       : `You are an expert ${selectedSubject} tutor for ${selectedClass} students in India. ${langInstruction}
 ${ownerInstruction}
 
 LEVEL: ${level}
 
-ANSWER FORMAT:
-Problem: [restate question in one line]
+ANSWER FORMAT — ALWAYS follow this exact structure:
+Problem: [one line restatement]
 
-Step 1: ...
-Step 2: ...
-...
+Key Idea: [main concept or formula used — 1 line only]
 
-Final Answer: [clear result]
+Step 1: [calculation]
 
-STRICT RULES:
-- ZERO LaTeX. ZERO dollar signs. ZERO backslashes. ZERO markdown symbols.
-- Fractions: write as (a)/(b), powers: x^2, square root: sqrt(x)
-- Each step on its OWN LINE with empty line after it
-- Never put multiple calculations in one line
-- For interval testing: each interval on separate line with blank line after
-- Add blank line between every step
-- Max 6 steps — summarize if longer
-- Maximum clarity, minimum words
-- Never repeat same explanation
-- Start directly — no "Sure!", no intro
-- BRACKETS RULE: Never add extra brackets. Write x+2 not (x+2) unless bracket is mathematically needed. Never double bracket like ((x+2)).`;
+Step 2: [calculation]
+
+Step 3: [calculation]
+
+★ Final Answer: [result clearly stated]
+
+MATH FORMAT RULES:
+- ZERO LaTeX. ZERO backslashes. ZERO {braces}. ZERO dollar signs.
+- Subscripts: write x₁ x₂ x₃ log₂ log₃ — use actual subscript characters
+- Powers: write x² x³ x⁻¹ — use actual superscript characters
+- Square root: write √x or √(expression)
+- Infinity: write ∞
+- Fractions: write as (a)/(b)
+- Trig: always write full sin, cos, tan, log — never abbreviate
+- Keep full equation on one line — never break mid-expression
+
+CONTENT RULES (Bug 2 — less text):
+- JEE/NEET level: skip obvious explanations, show only key steps + formula + answer
+- No long text paragraphs — math should speak for itself
+- Never repeat same thing twice
+- No "we know that", "it is given that", "therefore we can say" — just show the math
+- Max 5 steps total
+
+KEY POINT RULE (Bug 5 — highlight):
+- Mark important formulas or identities with ★ before them
+- Example: ★ AM-GM: (a+b+c)/3 ≥ (abc)^(1/3)
+
+FINAL ANSWER RULE (Bug 6):
+- Always end with: ★ Final Answer: [result]
+- Put final answer on its own line clearly
+
+SUBSTITUTION RULE (Bug 4):
+- If you make a substitution, explain it in ONE line before using it
+- Example: "Let y = log₃x, so y₁+y₂+y₃ = 9"
+
+Start directly — no "Sure!", no intro, no outro.`;
 
     const userMsg = doubt || 'Solve the question in this image completely.';
     let messages;
@@ -908,8 +1003,34 @@ STRICT RULES:
     if (currentMode === 'explain') answer = renderFractions(answer);
     lastAnswer = answer;
 
-    document.getElementById('answerBody').textContent = answer;
+    // Bug 5 & 6 - Render answer with highlights
+    const answerBody = document.getElementById('answerBody');
+    answerBody.innerHTML = '';
+    const lines = answer.split('\n');
+    lines.forEach(line => {
+      const div = document.createElement('div');
+      if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
+        div.className = 'final-answer-box';
+        div.textContent = line.replace('★ ', '');
+      } else if (line.startsWith('★') || line.startsWith('Key Idea:')) {
+        div.className = 'key-point';
+        div.textContent = line;
+      } else {
+        div.textContent = line;
+        div.style.marginBottom = line === '' ? '8px' : '2px';
+      }
+      answerBody.appendChild(div);
+    });
     document.getElementById('answerSub').textContent = selectedSubject + ' • ' + selectedClass + ' • Just now';
+    // Bug 7 - show detected question for photo uploads
+    if (photoBase64 && data.choices[0].message.content) {
+      const fullResponse = data.choices[0].message.content;
+      const problemMatch = fullResponse.match(/Problem:\s*(.+)/);
+      if (problemMatch) {
+        document.getElementById('detectedText').textContent = problemMatch[1].trim();
+        document.getElementById('detectedBox').style.display = 'block';
+      }
+    }
     answerCard.style.display = 'block';
     addToHistory(doubt || '📷 Photo question');
     setTimeout(() => answerCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
