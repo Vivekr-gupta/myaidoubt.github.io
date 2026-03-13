@@ -64,7 +64,7 @@ body {
 [data-theme="light"] .blob { opacity: 0.3; }
 @keyframes blobMove { 0% { transform: translate(0,0); } 100% { transform: translate(30px,30px); } }
 
-.container { max-width: 680px; margin: 0 auto; padding: 16px 16px 80px; position: relative; z-index: 1; }
+.container { max-width: 480px; margin: 0 auto; padding: 16px 16px 80px; position: relative; z-index: 1; }
 
 /* Top bar */
 .topbar {
@@ -460,6 +460,13 @@ textarea::placeholder {
 .others-item:hover { background: rgba(108,99,255,0.12); color: #a09aff; }
 
 /* Bug 7 - Detected question box */
+.detected-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.detected-edit-btn { background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3); border-radius: 8px; padding: 4px 10px; color: #a09aff; font-size: 12px; font-weight: 600; cursor: pointer; }
+.detected-edit-area { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(108,99,255,0.3); border-radius: 8px; padding: 8px; color: var(--text); font-size: 14px; resize: none; margin-top: 4px; box-sizing: border-box; }
+.detected-edit-actions { display: flex; gap: 8px; margin-top: 8px; }
+.detected-save-btn { background: linear-gradient(135deg,#6c63ff,#ff6b9d); border: none; border-radius: 8px; padding: 7px 14px; color: white; font-size: 13px; font-weight: 700; cursor: pointer; flex: 1; }
+.detected-cancel-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; color: var(--muted); font-size: 13px; cursor: pointer; }
+.detected-confirm { font-size: 11px; color: var(--muted); margin-top: 6px; font-style: italic; }
 .detected-box {
   background: rgba(0,229,255,0.05);
   border: 1px solid rgba(0,229,255,0.2);
@@ -602,8 +609,17 @@ textarea::placeholder {
       <button class="remove-photo" onclick="removePhoto()">✕</button>
     </div>
     <div class="detected-box" id="detectedBox">
-      <div class="detected-label">📷 Detected Question</div>
+      <div class="detected-label-row">
+        <span class="detected-label">📷 Detected Question</span>
+        <button class="detected-edit-btn" id="detectedEditBtn" onclick="toggleDetectedEdit()">✏️ Edit</button>
+      </div>
       <div class="detected-text" id="detectedText"></div>
+      <textarea class="detected-edit-area" id="detectedEditArea" style="display:none" rows="3"></textarea>
+      <div class="detected-edit-actions" id="detectedEditActions" style="display:none">
+        <button class="detected-save-btn" onclick="saveDetectedEdit()">✅ Save & Resolve</button>
+        <button class="detected-cancel-btn" onclick="cancelDetectedEdit()">✕ Cancel</button>
+      </div>
+      <div class="detected-confirm" id="detectedConfirm">Is this correct?</div>
     </div>
   </div>
 
@@ -851,6 +867,52 @@ function handlePhoto(event) {
   img.src = objectUrl;
 }
 
+// Bug 7 - Edit detected question
+function toggleDetectedEdit() {
+  const text = document.getElementById('detectedText');
+  const area = document.getElementById('detectedEditArea');
+  const actions = document.getElementById('detectedEditActions');
+  const btn = document.getElementById('detectedEditBtn');
+  area.value = text.textContent;
+  text.style.display = 'none';
+  area.style.display = 'block';
+  actions.style.display = 'flex';
+  btn.style.display = 'none';
+  document.getElementById('detectedConfirm').style.display = 'none';
+  area.focus();
+}
+
+function saveDetectedEdit() {
+  const area = document.getElementById('detectedEditArea');
+  const text = document.getElementById('detectedText');
+  const actions = document.getElementById('detectedEditActions');
+  const btn = document.getElementById('detectedEditBtn');
+  const edited = area.value.trim();
+  if (edited) {
+    text.textContent = edited;
+    // Put edited text into doubt input so it gets used for solving
+    document.getElementById('doubtInput').value = edited;
+    updateCount();
+  }
+  text.style.display = 'block';
+  area.style.display = 'none';
+  actions.style.display = 'none';
+  btn.style.display = 'block';
+  document.getElementById('detectedConfirm').style.display = 'block';
+}
+
+function cancelDetectedEdit() {
+  const text = document.getElementById('detectedText');
+  const area = document.getElementById('detectedEditArea');
+  const actions = document.getElementById('detectedEditActions');
+  const btn = document.getElementById('detectedEditBtn');
+  text.style.display = 'block';
+  area.style.display = 'none';
+  actions.style.display = 'none';
+  btn.style.display = 'block';
+  document.getElementById('detectedConfirm').style.display = 'block';
+}
+
 function removePhoto() {
   photoBase64 = null; photoMediaType = null;
   document.getElementById('photoPreviewWrap').style.display = 'none';
@@ -884,8 +946,16 @@ function shareAnswer() {
 }
 
 function renderFractions(text) {
-  // Convert (a)/(b) to visual fraction style: a/b on two lines
-  return text.replace(/\(([^)]+)\)\/\(([^)]+)\)/g, (_, num, den) => {
+  // Only render as visual fraction if both num and den are pure numbers/simple expressions
+  // NOT interval notation like -(1/2) or (-∞, -2)
+  return text.replace(/\(([^)]+)\)\/\(([^)]+)\)/g, (match, num, den) => {
+    // Skip if it looks like interval notation (contains comma, ∞, or is preceded by -)
+    if (num.includes(',') || den.includes(',') || num.includes('∞') || den.includes('∞')) {
+      return match;
+    }
+    // Skip negative interval expressions like -(1/2)
+    const idx = text.indexOf(match);
+    if (idx > 0 && text[idx-1] === '-') return match;
     const width = Math.max(num.length, den.length) + 2;
     const line = '─'.repeat(width);
     const pad = (s) => {
@@ -999,8 +1069,14 @@ async function solveDoubt() {
     const systemPrompt = isFlash
       ? `You are an expert ${selectedSubject} tutor. ${langInstruction}
 ${ownerInstruction}
-FLASH MODE — Give ONLY the direct final answer in maximum 1-2 lines.
-No steps. No explanation. No intro. Just the answer.
+QUICK ANSWER MODE:
+${selectedSubject === 'Maths' ? `MATHS STRICT MODE:
+- Give ONLY the final answer and ONE key formula/step.
+- Maximum 2 lines total. No explanation. No intro.
+- Example: "x = -2, -3" or "Answer: 45°"
+- If answer needs a formula: write formula then answer. Nothing else.` 
+: `Give a direct, concise answer in 2-4 lines maximum.
+No long paragraphs. Key point only. No intro.`}
 ZERO LaTeX. ZERO dollar signs. ZERO backslashes. ZERO {braces}.
 Powers: use x², x³. Square root: √(x). Infinity: ∞. Trig: sin, cos, tan.`
 
@@ -1009,8 +1085,14 @@ ${ownerInstruction}
 
 LEVEL: ${level}
 
-THINK FIRST (Note 2):
+THINK FIRST:
 Before solving, analyze the problem carefully. Identify the correct method or theorem. Then solve step by step.
+
+MIRROR NOTATION RULE (very important):
+Look at the symbols, notation and format used in the student's question.
+Use the EXACT same symbols and notation style in your answer.
+Example: if question uses x^2 → use x², if question uses log_2 → use log₂, if question uses (-∞,-2) → keep that format exactly.
+Never introduce new symbol styles not present in the question.
 
 ANSWER FORMAT — always follow exactly:
 Problem: [restate in one line]
@@ -1087,27 +1169,38 @@ Start directly — no "Sure!", no intro, no outro.`;
 
     let answer = data.choices[0].message.content;
     answer = cleanAnswer(answer);
-    if (currentMode === 'explain') answer = renderFractions(answer);
+    // renderFractions disabled - causes line breaking issues with nested brackets
     lastAnswer = answer;
 
-    // Bug 5 & 6 - Render answer with highlights
+    // Render answer with highlights
     const answerBody = document.getElementById('answerBody');
     answerBody.innerHTML = '';
-    const lines = answer.split('\n');
-    lines.forEach(line => {
-      const div = document.createElement('div');
-      if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
-        div.className = 'final-answer-box';
-        div.textContent = line.replace('★ ', '');
-      } else if (line.startsWith('★') || line.startsWith('Key Idea:')) {
-        div.className = 'key-point';
-        div.textContent = line;
-      } else {
-        div.textContent = line;
-        div.style.marginBottom = line === '' ? '8px' : '2px';
-      }
-      answerBody.appendChild(div);
-    });
+
+    // Quick Answer mode - wrap entire answer in highlight box
+    if (currentMode === 'flash') {
+      const box = document.createElement('div');
+      box.className = 'final-answer-box';
+      box.style.fontSize = '16px';
+      box.style.lineHeight = '1.8';
+      box.textContent = answer.replace('★ ', '').replace('Final Answer:', '').trim();
+      answerBody.appendChild(box);
+    } else {
+      const lines = answer.split('\n');
+      lines.forEach(line => {
+        const div = document.createElement('div');
+        if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
+          div.className = 'final-answer-box';
+          div.textContent = line.replace('★ ', '');
+        } else if (line.startsWith('★') || line.startsWith('Key Idea:')) {
+          div.className = 'key-point';
+          div.textContent = line;
+        } else {
+          div.textContent = line;
+          div.style.marginBottom = line === '' ? '8px' : '2px';
+        }
+        answerBody.appendChild(div);
+      });
+    }
     document.getElementById('answerSub').textContent = selectedSubject + ' • ' + selectedClass + ' • Just now';
     // Bug 7 - show detected question for photo uploads
     if (photoBase64 && data.choices[0].message.content) {
