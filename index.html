@@ -462,6 +462,62 @@ textarea::placeholder {
 }
 .others-item:hover { background: rgba(108,99,255,0.12); color: #a09aff; }
 
+/* Feature 2 - Crop Modal */
+.crop-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 99999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.crop-modal.open { display: flex; }
+.crop-title { color: white; font-size: 15px; font-weight: 700; margin-bottom: 12px; text-align: center; }
+.crop-subtitle { color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 16px; text-align: center; }
+.crop-container {
+  position: relative;
+  max-width: 100%;
+  max-height: 55vh;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: crosshair;
+  user-select: none;
+}
+.crop-container img { display: block; max-width: 100%; max-height: 55vh; object-fit: contain; }
+.crop-selection {
+  position: absolute;
+  border: 2px solid #00e5ff;
+  background: rgba(0,229,255,0.1);
+  pointer-events: none;
+  display: none;
+}
+.crop-actions { display: flex; gap: 12px; margin-top: 16px; width: 100%; max-width: 400px; }
+.crop-btn-use { flex: 1; background: linear-gradient(135deg,#6c63ff,#ff6b9d); border: none; border-radius: 12px; padding: 13px; color: white; font-size: 14px; font-weight: 700; cursor: pointer; }
+.crop-btn-skip { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 13px; color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer; }
+
+/* Problem and Concept highlight boxes */
+.problem-box {
+  background: rgba(255, 140, 0, 0.1);
+  border-left: 3px solid #ff8c00;
+  border-radius: 0 8px 8px 0;
+  padding: 8px 12px;
+  margin: 4px 0 8px;
+  color: #ffb347;
+  font-weight: 600;
+}
+.concept-box {
+  background: rgba(108, 99, 255, 0.12);
+  border-left: 3px solid #6c63ff;
+  border-radius: 0 8px 8px 0;
+  padding: 8px 12px;
+  margin: 4px 0 8px;
+  color: #a09aff;
+  font-weight: 600;
+}
+
 /* Bug 7 - Detected question box */
 .detected-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 .detected-edit-btn { background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3); border-radius: 8px; padding: 4px 10px; color: #a09aff; font-size: 12px; font-weight: 600; cursor: pointer; }
@@ -846,6 +902,124 @@ function updateCount() {
   document.getElementById('charCount').textContent = val.length + ' / 500';
 }
 
+// Feature 2 - Crop Tool
+let cropImageSrc = null;
+let cropStartX, cropStartY, cropEndX, cropEndY, isCropping = false;
+let cropOriginalFile = null;
+
+function openCropModal(src, file) {
+  cropImageSrc = src;
+  cropOriginalFile = file;
+  const modal = document.getElementById('cropModal');
+  const img = document.getElementById('cropImage');
+  img.src = src;
+  document.getElementById('cropSelection').style.display = 'none';
+  modal.classList.add('open');
+
+  const container = document.getElementById('cropContainer');
+  container.onmousedown = container.ontouchstart = startCrop;
+  container.onmousemove = container.ontouchmove = moveCrop;
+  container.onmouseup = container.ontouchend = endCrop;
+}
+
+function getCropCoords(e, container) {
+  const rect = container.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  return {
+    x: Math.max(0, Math.min(touch.clientX - rect.left, rect.width)),
+    y: Math.max(0, Math.min(touch.clientY - rect.top, rect.height))
+  };
+}
+
+function startCrop(e) {
+  e.preventDefault();
+  isCropping = true;
+  const coords = getCropCoords(e, this);
+  cropStartX = coords.x; cropStartY = coords.y;
+  const sel = document.getElementById('cropSelection');
+  sel.style.display = 'block';
+  sel.style.left = cropStartX + 'px';
+  sel.style.top = cropStartY + 'px';
+  sel.style.width = '0px'; sel.style.height = '0px';
+}
+
+function moveCrop(e) {
+  if (!isCropping) return;
+  e.preventDefault();
+  const coords = getCropCoords(e, document.getElementById('cropContainer'));
+  cropEndX = coords.x; cropEndY = coords.y;
+  const sel = document.getElementById('cropSelection');
+  sel.style.left = Math.min(cropStartX, cropEndX) + 'px';
+  sel.style.top = Math.min(cropStartY, cropEndY) + 'px';
+  sel.style.width = Math.abs(cropEndX - cropStartX) + 'px';
+  sel.style.height = Math.abs(cropEndY - cropStartY) + 'px';
+}
+
+function endCrop(e) { isCropping = false; }
+
+function applyCrop() {
+  const img = document.getElementById('cropImage');
+  const container = document.getElementById('cropContainer');
+  const sel = document.getElementById('cropSelection');
+  
+  // If no selection made, skip crop
+  const w = parseFloat(sel.style.width), h = parseFloat(sel.style.height);
+  if (!w || !h || w < 20 || h < 20) { skipCrop(); return; }
+
+  const scaleX = img.naturalWidth / img.clientWidth;
+  const scaleY = img.naturalHeight / img.clientHeight;
+  const sx = parseFloat(sel.style.left) * scaleX;
+  const sy = parseFloat(sel.style.top) * scaleY;
+  const sw = w * scaleX;
+  const sh = h * scaleY;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = sw; canvas.height = sh;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+  
+  const cropped = canvas.toDataURL('image/jpeg', 0.85);
+  photoBase64 = cropped.split(',')[1];
+  photoMediaType = 'image/jpeg';
+  document.getElementById('photoPreview').src = cropped;
+  document.getElementById('photoPreviewWrap').style.display = 'block';
+  document.getElementById('cropModal').classList.remove('open');
+  showToast('✅ Photo cropped!');
+}
+
+function skipCrop() {
+  // Use original image without crop
+  processPhotoFromSrc(cropImageSrc);
+  document.getElementById('cropModal').classList.remove('open');
+}
+
+function processPhotoFromSrc(src) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const MAX = 800;
+    let w = img.width, h = img.height;
+    if (w > MAX || h > MAX) {
+      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+      else { w = Math.round(w * MAX / h); h = MAX; }
+    }
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    let quality = 0.7;
+    let compressed = canvas.toDataURL('image/jpeg', quality);
+    while (compressed.length > 1.2 * 1024 * 1024 && quality > 0.2) {
+      quality -= 0.1;
+      compressed = canvas.toDataURL('image/jpeg', quality);
+    }
+    photoBase64 = compressed.split(',')[1];
+    photoMediaType = 'image/jpeg';
+    document.getElementById('photoPreview').src = compressed;
+    document.getElementById('photoPreviewWrap').style.display = 'block';
+  };
+  img.src = src;
+}
+
 function handlePhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -856,26 +1030,12 @@ function handlePhoto(event) {
 
   img.onload = () => {
     URL.revokeObjectURL(objectUrl);
+    // Show crop modal instead of directly processing
     const canvas = document.createElement('canvas');
-    const MAX = 800;
-    let w = img.width, h = img.height;
-    if (w > MAX || h > MAX) {
-      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-      else { w = Math.round(w * MAX / h); h = MAX; }
-    }
-    canvas.width = w; canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(img, 0, 0, w, h);
-    let quality = 0.7;
-    let compressed = canvas.toDataURL('image/jpeg', quality);
-    while (compressed.length > 1.2 * 1024 * 1024 && quality > 0.2) {
-      quality -= 0.1;
-      compressed = canvas.toDataURL('image/jpeg', quality);
-    }
-    photoBase64 = compressed.split(',')[1];
-    document.getElementById('photoPreview').src = compressed;
-    document.getElementById('photoPreviewWrap').style.display = 'block';
+    canvas.width = img.width; canvas.height = img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    const src = canvas.toDataURL('image/jpeg', 0.9);
+    openCropModal(src, file);
   };
 
   img.onerror = () => {
@@ -1087,26 +1247,33 @@ async function solveDoubt() {
     const isFlash = currentMode === 'flash';
 
     const systemPrompt = isFlash
-      ? `You are an expert ${selectedSubject} tutor. ${langInstruction}
+      ? `You are an expert tutor for all subjects. ${langInstruction}
 ${ownerInstruction}
 QUICK ANSWER MODE:
-${selectedSubject === 'Maths' ? `MATHS STRICT MODE:
-- Give ONLY the final answer and ONE key formula/step.
-- Maximum 2 lines total. No explanation. No intro.
-- Example: "x = -2, -3" or "Answer: 45°"
-- If answer needs a formula: write formula then answer. Nothing else.` 
+${(selectedSubject === 'Maths' || selectedSubject === 'Physics') ? `MATHS/PHYSICS STRICT MODE:
+- First solve the problem completely in your head.
+- Then output ONLY this single line: "★ Final Answer: [answer]"
+- Nothing else. No steps. No explanation. No intro. Just the final answer line.
+- Example: "★ Final Answer: x = -2, -3" or "★ Final Answer: 5"` 
 : `Give a direct, concise answer in 2-4 lines maximum.
 No long paragraphs. Key point only. No intro.`}
 ZERO LaTeX. ZERO dollar signs. ZERO backslashes. ZERO {braces}.
 Powers: use x², x³. Square root: √(x). Infinity: ∞. Trig: sin, cos, tan.`
 
-      : `You are an expert ${selectedSubject} tutor for ${selectedClass} students in India. ${langInstruction}
+      : `You are an expert tutor for all subjects, helping ${selectedClass} students in India. ${langInstruction}
 ${ownerInstruction}
 
 LEVEL: ${level}
 
 THINK FIRST:
 Before solving, analyze the problem carefully. Identify the correct method or theorem. Then solve step by step.
+
+AUTO DETECT RULE (very important):
+- First identify the ACTUAL subject of the question (Maths, Physics, Chemistry, Biology, etc.)
+- First identify the ACTUAL difficulty level from question complexity
+- Use the correct subject approach regardless of what subject was selected
+- If question is Class 10 level but JEE selected → solve at Class 10 level
+- If question is JEE Advanced level but Class 10 selected → solve at JEE level with clear steps
 
 MIRROR NOTATION RULE (very important):
 Look at the symbols, notation and format used in the student's question.
@@ -1224,8 +1391,15 @@ Never show the verification process — only show if it caused a correction.`;
         if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
           div.className = 'final-answer-box';
           div.textContent = line.replace('★ ', '');
-        } else if (line.startsWith('★') || line.startsWith('Key Idea:')) {
-          div.className = 'key-point';
+        } else if (line.startsWith('★') || line.startsWith('Key Idea:') || line.startsWith('Concept Used:')) {
+          if (line.startsWith('Concept Used:')) {
+            div.className = 'concept-box';
+          } else {
+            div.className = 'key-point';
+          }
+          div.textContent = line;
+        } else if (line.startsWith('Problem:')) {
+          div.className = 'problem-box';
           div.textContent = line;
         } else {
           div.textContent = line;
@@ -1324,6 +1498,20 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(swUrl).catch(() => {});
 }
 </script>
+
+  <!-- Crop Modal - Feature 2 -->
+  <div class="crop-modal" id="cropModal">
+    <div class="crop-title">✂️ Crop Your Question</div>
+    <div class="crop-subtitle">Drag to select the question area</div>
+    <div class="crop-container" id="cropContainer">
+      <img id="cropImage" src="" alt="Crop">
+      <div class="crop-selection" id="cropSelection"></div>
+    </div>
+    <div class="crop-actions">
+      <button class="crop-btn-use" onclick="applyCrop()">✅ Use Cropped</button>
+      <button class="crop-btn-skip" onclick="skipCrop()">Skip →</button>
+    </div>
+  </div>
 
   <!-- Others dropdown at body level -->
   <div class="others-menu" id="othersMenu">
