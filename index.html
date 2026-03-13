@@ -309,6 +309,9 @@ textarea::placeholder {
 .btn-solve:active { transform: translateY(0); }
 .btn-solve:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
+/* Solve time */
+.solve-time { font-size: 11px; color: #6c63ff; font-weight: 600; margin-top: 2px; }
+
 /* Loading */
 .loading { display: none; text-align: center; padding: 36px 20px; }
 .loading-ring { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
@@ -573,7 +576,10 @@ textarea::placeholder {
       <div class="input-icon">✏️</div>
       <div class="input-label" id="inputLabel">Your Doubt</div>
     </div>
-    <textarea id="doubtInput" placeholder="Type your question here..." rows="4" oninput="updateCount()"></textarea>
+    <div style="position:relative">
+      <textarea id="doubtInput" placeholder="Type your question here..." rows="4" oninput="updateCount(); toggleClearBtn()"></textarea>
+      <button id="clearInputBtn" onclick="clearInput()" style="display:none;position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;width:22px;height:22px;color:var(--muted);font-size:13px;cursor:pointer;line-height:1;padding:0;">✕</button>
+    </div>
     <div class="example-hints">
       <span class="example-hint-label">e.g.</span>
       <span class="example-hint">Solve x² + 5x + 6 = 0</span>
@@ -631,7 +637,7 @@ textarea::placeholder {
   <!-- Loading -->
   <div class="loading" id="loading">
     <div class="loading-ring"></div>
-    <div class="loading-text" id="loadingText">Thinking...</div>
+    <div class="loading-text" id="loadingText">Analyzing your question...</div>
   </div>
 
   <!-- Error -->
@@ -644,6 +650,7 @@ textarea::placeholder {
       <div>
         <div class="answer-title" id="answerTitle">Answer</div>
         <div class="answer-sub" id="answerSub">Just now</div>
+        <div class="solve-time" id="solveTime"></div>
       </div>
       <button class="share-btn" onclick="shareAnswer()">📤 <span id="shareText">Share</span></button>
     </div>
@@ -703,7 +710,7 @@ const T = {
     camera: 'Take Photo', cameraS: 'Use camera',
     gallery: 'Upload Photo', galleryS: 'From gallery',
     solveBtn: '⚡ Solve My Doubt',
-    loading: 'Thinking...',
+    loading: 'Analyzing your question...',
     answerTitle: 'Answer',
     share: 'Share',
     historyLabel: 'RECENT QUESTIONS',
@@ -719,7 +726,7 @@ const T = {
     camera: 'फोटो खींचो', cameraS: 'Camera से',
     gallery: 'फोटो Upload करो', galleryS: 'Gallery से',
     solveBtn: '⚡ Doubt Solve करो',
-    loading: 'सोच रहा हूँ...',
+    loading: 'प्रश्न विश्लेषण हो रहा है...',
     answerTitle: 'जवाब',
     share: 'Share करो',
     historyLabel: 'पिछले सवाल',
@@ -820,6 +827,18 @@ document.addEventListener('click', () => {
 
 function updateSubjectLabel() {
   document.getElementById('subjectLabel').textContent = selectedSubject + ' • ' + selectedClass;
+}
+
+function clearInput() {
+  document.getElementById('doubtInput').value = '';
+  document.getElementById('charCount').textContent = '0 / 500';
+  document.getElementById('clearInputBtn').style.display = 'none';
+  document.getElementById('doubtInput').focus();
+}
+
+function toggleClearBtn() {
+  const val = document.getElementById('doubtInput').value;
+  document.getElementById('clearInputBtn').style.display = val.length > 0 ? 'block' : 'none';
 }
 
 function updateCount() {
@@ -1042,6 +1061,7 @@ async function solveDoubt() {
   errorCard.style.display = 'none';
   btn.disabled = true;
   loading.style.display = 'block';
+  const solveStartTime = Date.now();
 
   try {
     const langInstruction = currentLang === 'hi'
@@ -1136,7 +1156,20 @@ SUBSTITUTION RULE:
 - Explain substitution in ONE line before using it
 - Example: Let y = log₃x, so y₁+y₂+y₃ = 9
 
-Start directly — no "Sure!", no intro, no outro.`;
+Start directly — no "Sure!", no intro, no outro.
+
+LIMITS & CALCULUS RULE:
+- For limit problems, always use Taylor series expansion OR L'Hôpital's rule
+- Apply L'Hôpital's rule as final verification for 0/0 or ∞/∞ forms
+- Never skip steps in limit evaluation — small errors compound
+
+VERIFICATION STEP (for maths/physics):
+After solving, quickly verify your answer using one of:
+- Substitute answer back into original equation
+- Check with a simpler method
+- Check boundary/edge cases
+If you find an error, correct it silently and show the right answer.
+Never show the verification process — only show if it caused a correction.`;
 
     const userMsg = doubt || 'Solve the question in this image completely.';
     let messages;
@@ -1161,7 +1194,7 @@ Start directly — no "Sure!", no intro, no outro.`;
     const response = await fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages, max_tokens: 2048, temperature: 0.5 })
+      body: JSON.stringify({ model, messages, max_tokens: 2048, temperature: (selectedSubject === 'Maths' || selectedSubject === 'Physics') ? 0 : 0.5 })
     });
 
     const data = await response.json();
@@ -1202,6 +1235,8 @@ Start directly — no "Sure!", no intro, no outro.`;
       });
     }
     document.getElementById('answerSub').textContent = selectedSubject + ' • ' + selectedClass + ' • Just now';
+    const solveTime = ((Date.now() - solveStartTime) / 1000).toFixed(1);
+    document.getElementById('solveTime').textContent = '⚡ Solved in ' + solveTime + 's';
     // Bug 7 - show detected question for photo uploads
     if (photoBase64 && data.choices[0].message.content) {
       const fullResponse = data.choices[0].message.content;
