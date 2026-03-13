@@ -1365,8 +1365,10 @@ function cleanAnswer(text) {
     .trim();
 }
 
+const WORKER_URL = 'https://ai-doubt-solver.kvivekgupta190.workers.dev';
+
 async function solveDoubt() {
-  const WORKER_URL = 'https://ai-doubt-solver.kvivekgupta190.workers.dev';
+  // WORKER_URL is defined globally below
   const doubt = document.getElementById('doubtInput').value.trim();
   const btn = document.getElementById('solveBtn');
   const loading = document.getElementById('loading');
