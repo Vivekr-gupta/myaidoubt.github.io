@@ -64,7 +64,7 @@ body {
 [data-theme="light"] .blob { opacity: 0.3; }
 @keyframes blobMove { 0% { transform: translate(0,0); } 100% { transform: translate(30px,30px); } }
 
-.container { max-width: 480px; margin: 0 auto; padding: 16px 16px 80px; position: relative; z-index: 1; }
+.container { max-width: 480px; margin: 0 auto; padding: 4px 16px 80px; position: relative; z-index: 1; }
 
 /* Top bar */
 .topbar {
@@ -140,19 +140,19 @@ body {
 }
 
 /* Header */
-.header { text-align: center; padding: 8px 0 12px; animation: slideDown 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+.header { text-align: center; padding: 2px 0 6px; animation: slideDown 0.8s cubic-bezier(0.16,1,0.3,1) both; }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 
 .badge {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.25);
   border-radius: 100px; padding: 5px 14px; font-size: 11px; font-weight: 600;
-  color: #a09aff; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px;
+  color: #a09aff; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;
 }
 .badge-dot { width: 5px; height: 5px; background: #6c63ff; border-radius: 50%; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
 
-h1 { font-family: 'Outfit', sans-serif; font-size: clamp(30px,8vw,50px); font-weight: 900; line-height: 1.05; letter-spacing: -2px; margin-bottom: 10px; }
+h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-weight: 900; line-height: 1.05; letter-spacing: -2px; margin-bottom: 10px; }
 .grad1 { background: linear-gradient(135deg,#6c63ff,#a09aff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .grad2 { background: linear-gradient(135deg,#ff6b9d,#ffbe0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .subtitle { color: var(--muted); font-size: 14px; line-height: 1.5; }
@@ -160,7 +160,7 @@ h1 { font-family: 'Outfit', sans-serif; font-size: clamp(30px,8vw,50px); font-we
 /* Class selector */
 .class-row {
   display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-  margin: 16px 0 12px; animation: fadeUp 0.7s 0.1s both;
+  margin: 8px 0 8px; animation: fadeUp 0.7s 0.1s both;
 }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -346,18 +346,23 @@ textarea::placeholder {
   border-radius: 100px;
   padding: 3px;
   gap: 3px;
+  width: 100%;
 }
 
 .mode-tab {
-  padding: 7px 20px;
+  padding: 8px 0;
   border-radius: 100px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   color: var(--muted);
   transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
   letter-spacing: -0.2px;
+  text-align: center;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 
 .mode-tab.active {
@@ -461,6 +466,153 @@ textarea::placeholder {
   cursor: pointer; color: var(--text); transition: all 0.15s;
 }
 .others-item:hover { background: rgba(108,99,255,0.12); color: #a09aff; }
+
+/* Feature 1 - Copy answer button */
+.final-answer-box { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fa-text { flex: 1; }
+.copy-ans-btn {
+  background: rgba(0,229,255,0.15);
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 8px;
+  color: #00e5ff;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.copy-ans-btn:active { background: rgba(0,229,255,0.3); }
+
+/* Feature 2 - Learn Mode next button */
+.learn-next-btn {
+  display: block;
+  width: 100%;
+  margin: 10px 0 4px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(255,107,157,0.2));
+  border: 1px solid rgba(108,99,255,0.4);
+  border-radius: 12px;
+  color: #a09aff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.learn-next-btn:active { background: rgba(108,99,255,0.35); }
+
+/* Feature 4 - Practice Mode */
+.practice-page {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9000;
+  overflow-y: auto;
+  padding: 0 0 40px;
+}
+.practice-page.open { display: block; }
+.practice-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+.practice-back {
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 18px;
+  width: 38px; height: 38px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.practice-title { font-size: 18px; font-weight: 800; color: var(--text); }
+.practice-body { padding: 16px; }
+.practice-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; }
+.practice-select {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 16px;
+  outline: none;
+}
+.practice-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 16px;
+  outline: none;
+  box-sizing: border-box;
+}
+.practice-diff-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.diff-pill {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.diff-pill.active { background: linear-gradient(135deg,#6c63ff,#ff6b9d); color: white; border-color: transparent; }
+.practice-gen-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg,#6c63ff,#ff6b9d);
+  border: none;
+  border-radius: 16px;
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+.practice-question-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  display: none;
+}
+.practice-q-label { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+.practice-q-text { font-size: 15px; color: var(--text); line-height: 1.6; }
+.practice-show-btn {
+  width: 100%;
+  padding: 14px;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 14px;
+  color: #00e5ff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.practice-answer-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(108,99,255,0.2);
+  display: none;
+}
 
 /* Feature 2 - Crop Modal */
 .crop-modal {
@@ -618,8 +770,9 @@ textarea::placeholder {
   <!-- Mode Toggle -->
   <div class="mode-wrap">
     <div class="mode-tabs">
-      <div class="mode-tab active" id="modeExplain" onclick="setMode('explain')">📖 Explanation</div>
-      <div class="mode-tab" id="modeFlash" onclick="setMode('flash')">⚡ Quick Answer</div>
+      <div class="mode-tab" id="modeLearn" onclick="setMode('learn')">Learn<br>📚</div>
+      <div class="mode-tab active" id="modeExplain" onclick="setMode('explain')">Explanation<br>📖</div>
+      <div class="mode-tab" id="modeFlash" onclick="setMode('flash')">Quick Answer<br>⚡</div>
     </div>
     <div class="mode-desc" id="modeDesc">Step-by-step detailed answer</div>
   </div>
@@ -689,6 +842,9 @@ textarea::placeholder {
   <button class="btn-solve" id="solveBtn" onclick="solveDoubt()">
     <span id="solveBtnText">⚡ Solve My Doubt</span>
   </button>
+
+  <!-- Practice Mode Button -->
+  <button onclick="openPractice()" style="width:100%;padding:14px;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.3);border-radius:16px;color:#a09aff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:0;">🎯 Practice Mode</button>
 
   <!-- Loading -->
   <div class="loading" id="loading">
@@ -814,7 +970,10 @@ function setMode(mode) {
   currentMode = mode;
   document.getElementById('modeExplain').classList.toggle('active', mode === 'explain');
   document.getElementById('modeFlash').classList.toggle('active', mode === 'flash');
-  document.getElementById('modeDesc').textContent = mode === 'explain'
+  document.getElementById('modeLearn').classList.toggle('active', mode === 'learn');
+  document.getElementById('modeDesc').textContent = mode === 'learn'
+    ? '🧠 Reveals solution step by step'
+    : mode === 'explain'
     ? 'Step-by-step detailed answer'
     : 'Direct answer only — no steps';
 }
@@ -1245,8 +1404,31 @@ async function solveDoubt() {
 - Only say "Vivek Gupta" when directly asked about ownership — not in any other answer.`;
 
     const isFlash = currentMode === 'flash';
+    const isLearn = currentMode === 'learn';
 
-    const systemPrompt = isFlash
+    const systemPrompt = isLearn
+      ? `You are an expert tutor for all subjects, helping ${selectedClass} students in India. ${langInstruction}
+${ownerInstruction}
+
+LEARN MODE — STEP BY STEP REVEAL:
+Output the solution in EXACTLY this format, with each part on its own line:
+
+Problem: [one line description]
+Concept Used: [formula/theorem/concept]
+Step 1: [first step]
+Step 2: [second step]
+Step 3: [third step - add more steps if needed]
+★ Final Answer: [result]
+
+RULES:
+- Each line must start with its exact label (Problem:, Concept Used:, Step 1:, etc.)
+- Keep each step SHORT — one calculation per step
+- Maximum 6 steps
+- No extra text, no intro, no outro
+ZERO LaTeX. ZERO dollar signs. ZERO backslashes.
+Powers: use x², x³. Square root: √(x). Infinity: ∞.`
+
+      : isFlash
       ? `You are an expert tutor for all subjects. ${langInstruction}
 ${ownerInstruction}
 QUICK ANSWER MODE:
@@ -1376,8 +1558,51 @@ Never show the verification process — only show if it caused a correction.`;
     const answerBody = document.getElementById('answerBody');
     answerBody.innerHTML = '';
 
+    // LEARN MODE - step by step reveal
+    if (currentMode === 'learn') {
+      const lines = answer.split('\n').filter(l => l.trim());
+      let stepIndex = 0;
+      let revealed = 0;
+
+      function revealNext() {
+        if (revealed >= lines.length) return;
+        const line = lines[revealed];
+        const div = document.createElement('div');
+        if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
+          div.className = 'final-answer-box';
+          const ansText = line.replace('★ ', '');
+          div.innerHTML = `<span class="fa-text">${ansText}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
+        } else if (line.startsWith('Concept Used:')) {
+          div.className = 'concept-box';
+          div.textContent = line;
+        } else if (line.startsWith('Problem:')) {
+          div.className = 'problem-box';
+          div.textContent = line;
+        } else {
+          div.textContent = line;
+          div.style.marginBottom = '4px';
+        }
+        div.style.opacity = '0';
+        div.style.transition = 'opacity 0.4s ease';
+        answerBody.appendChild(div);
+        setTimeout(() => div.style.opacity = '1', 30);
+        revealed++;
+
+        // If more lines remain and not final answer yet, show Next button
+        const isFinal = line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:');
+        if (!isFinal && revealed < lines.length) {
+          const nextBtn = document.createElement('button');
+          nextBtn.className = 'learn-next-btn';
+          nextBtn.textContent = revealed === 1 ? '▶ Show Step 1' : `▶ Next Step (${revealed})`;
+          nextBtn.onclick = () => { nextBtn.remove(); revealNext(); };
+          answerBody.appendChild(nextBtn);
+        }
+        answerBody.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+      revealNext(); // reveal Problem first automatically
+    }
     // Quick Answer mode - wrap entire answer in highlight box
-    if (currentMode === 'flash') {
+    else if (currentMode === 'flash') {
       const box = document.createElement('div');
       box.className = 'final-answer-box';
       box.style.fontSize = '16px';
@@ -1385,12 +1610,32 @@ Never show the verification process — only show if it caused a correction.`;
       box.textContent = answer.replace('★ ', '').replace('Final Answer:', '').trim();
       answerBody.appendChild(box);
     } else {
-      const lines = answer.split('\n');
+      // Pre-process: merge "Final Answer:" on one line with next line if empty answer
+      let rawLines = answer.split('\n');
+      let lines = [];
+      for (let i = 0; i < rawLines.length; i++) {
+        const line = rawLines[i].trim();
+        if ((line === '★ Final Answer:' || line === 'Final Answer:') && i + 1 < rawLines.length) {
+          const nextLine = rawLines[i+1].trim();
+          if (nextLine && !nextLine.startsWith('Step') && !nextLine.startsWith('Problem')) {
+            lines.push((line.startsWith('★') ? '★ Final Answer: ' : 'Final Answer: ') + nextLine);
+            i++; continue;
+          }
+        }
+        lines.push(rawLines[i]);
+      }
       lines.forEach(line => {
         const div = document.createElement('div');
         if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
           div.className = 'final-answer-box';
-          div.textContent = line.replace('★ ', '');
+          const ansText = line.replace('★ ', '');
+          // Make sure there is actual answer text
+          const answerText = ansText.replace('Final Answer:', '').trim();
+          if (answerText) {
+            div.innerHTML = `<span class="fa-text">${ansText}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
+          } else {
+            div.innerHTML = `<span class="fa-text">${ansText}</span>`;
+          }
         } else if (line.startsWith('★') || line.startsWith('Key Idea:') || line.startsWith('Concept Used:')) {
           if (line.startsWith('Concept Used:')) {
             div.className = 'concept-box';
@@ -1421,7 +1666,8 @@ Never show the verification process — only show if it caused a correction.`;
       }
     }
     answerCard.style.display = 'block';
-    addToHistory(doubt || '📷 Photo question');
+    const historyLabel = doubt || ('📷 Photo ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+    addToHistory(historyLabel);
     setTimeout(() => answerCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 
   } catch (err) {
@@ -1440,27 +1686,346 @@ function showError(msg) {
   document.getElementById('solveBtn').disabled = false;
 }
 
-function addToHistory(item) {
-  history.unshift(item);
-  if (history.length > 5) history.pop();
+// ── Feature 3: Full History with localStorage, Bookmark, Delete ──
+function getStoredHistory() {
+  try {
+    const raw = localStorage.getItem('myaidoubt_history');
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    const now = Date.now();
+    // Keep only last 24 hours
+    return parsed.filter(h => (now - h.time) < 86400000);
+  } catch { return []; }
+}
+
+function saveStoredHistory(arr) {
+  try { localStorage.setItem('myaidoubt_history', JSON.stringify(arr)); } catch {}
+}
+
+function addToHistory(question) {
+  let hist = getStoredHistory();
+  // Only remove duplicates for text questions, not photo questions
+  if (!question.startsWith('📷')) {
+    hist = hist.filter(h => h.q !== question);
+  }
+  hist.unshift({ q: question, time: Date.now(), answer: lastAnswer, subject: selectedSubject, bookmarked: false });
+  if (hist.length > 20) hist = hist.slice(0, 20);
+  saveStoredHistory(hist);
+  renderHistory();
+}
+
+function renderHistory() {
+  const hist = getStoredHistory();
   const wrap = document.getElementById('historyWrap');
   const list = document.getElementById('historyList');
+  if (hist.length === 0) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
   list.innerHTML = '';
-  history.forEach(q => {
+
+  // Header row with Clear All
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;';
+  header.innerHTML = `<span style="color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1px;">TODAY'S DOUBTS</span>
+    <button onclick="clearAllHistory()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:2px 6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);">🗑️ Clear All</button>`;
+  list.appendChild(header);
+
+  hist.forEach((item, idx) => {
     const div = document.createElement('div');
     div.className = 'history-item';
-    div.innerHTML = `<div class="history-dot"></div><div class="history-text">${q}</div>`;
-    div.onclick = () => {
-      if (!q.startsWith('📷')) { document.getElementById('doubtInput').value = q; updateCount(); }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;';
+    const short = item.q.length > 45 ? item.q.slice(0, 45) + '...' : item.q;
+    div.innerHTML = `
+      <div style="flex:1;cursor:pointer;" onclick="loadHistory(${idx})">
+        <div style="font-size:13px;color:var(--text);">${short}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${item.subject || ''} • ${new Date(item.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <button onclick="toggleBookmark(${idx})" style="background:none;border:none;font-size:16px;cursor:pointer;padding:4px;" title="${item.bookmarked ? 'Remove bookmark' : 'Bookmark'}">${item.bookmarked ? '⭐' : '☆'}</button>
+      <button onclick="deleteHistory(${idx})" style="background:none;border:none;font-size:14px;cursor:pointer;padding:4px;color:var(--muted);" title="Delete">🗑️</button>`;
     list.appendChild(div);
   });
 }
 
+function loadHistory(idx) {
+  const hist = getStoredHistory();
+  const item = hist[idx];
+  if (!item) return;
+  openHistoryDetail(item);
+}
+
+function openHistoryDetail(item) {
+  const page = document.getElementById('historyDetailPage');
+  document.getElementById('hdQuestion').textContent = item.q;
+  document.getElementById('hdMeta').textContent = (item.subject || '') + ' • ' + new Date(item.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  // Render saved answer
+  const body = document.getElementById('hdAnswerBody');
+  body.innerHTML = '';
+  if (item.answer) {
+    let rawLines = item.answer.split('\n');
+    let lines = [];
+    for (let i = 0; i < rawLines.length; i++) {
+      const line = rawLines[i].trim();
+      if ((line === '★ Final Answer:' || line === 'Final Answer:') && i + 1 < rawLines.length) {
+        const nextLine = rawLines[i+1].trim();
+        if (nextLine) { lines.push((line.startsWith('★') ? '★ Final Answer: ' : 'Final Answer: ') + nextLine); i++; continue; }
+      }
+      lines.push(rawLines[i]);
+    }
+    lines.forEach(line => {
+      const div = document.createElement('div');
+      if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
+        div.className = 'final-answer-box';
+        div.innerHTML = `<span class="fa-text">${line.replace('★ ','')}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)">📋</button>`;
+      } else if (line.startsWith('Concept Used:')) {
+        div.className = 'concept-box'; div.textContent = line;
+      } else if (line.startsWith('Problem:')) {
+        div.className = 'problem-box'; div.textContent = line;
+      } else if (line.startsWith('★')) {
+        div.className = 'key-point'; div.textContent = line;
+      } else {
+        div.textContent = line; div.style.marginBottom = line === '' ? '8px' : '2px';
+      }
+      body.appendChild(div);
+    });
+  } else {
+    body.textContent = 'Answer not saved.';
+  }
+  page.classList.add('open');
+}
+
+function closeHistoryDetail() {
+  document.getElementById('historyDetailPage').classList.remove('open');
+}
+
+function toggleBookmark(idx) {
+  const hist = getStoredHistory();
+  if (hist[idx]) { hist[idx].bookmarked = !hist[idx].bookmarked; saveStoredHistory(hist); renderHistory(); }
+}
+
+function deleteHistory(idx) {
+  const hist = getStoredHistory();
+  hist.splice(idx, 1);
+  saveStoredHistory(hist);
+  renderHistory();
+}
+
+function clearAllHistory() {
+  if (confirm('Clear all today\'s doubts?')) {
+    localStorage.removeItem('myaidoubt_history');
+    renderHistory();
+    showToast('🗑️ History cleared!');
+  }
+}
+
+// Feature 1 - Copy Final Answer
+function copyFinalAnswer(btn) {
+  const text = btn.closest('.final-answer-box').querySelector('.fa-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅';
+    setTimeout(() => btn.textContent = '📋', 1500);
+  }).catch(() => showToast('Could not copy'));
+}
+
+// Feature 4 - Practice Mode
+let practiceDiff = 'Easy';
+let practiceClass = 'Class 1-10';
+let practiceSubject = 'Physics';
+let practiceQuestions = [];
+let currentPracticeIdx = 0;
+
+function openPractice() { document.getElementById('practicePage').classList.add('open'); }
+function closePractice() { document.getElementById('practicePage').classList.remove('open'); }
+
+let selectedDiffs = new Set(['Easy']);
+
+function selectDiff(el, val) {
+  if (selectedDiffs.has(val)) {
+    // Deselect only if more than 1 selected
+    if (selectedDiffs.size > 1) {
+      selectedDiffs.delete(val);
+      el.classList.remove('active');
+    }
+  } else {
+    selectedDiffs.add(val);
+    el.classList.add('active');
+  }
+  practiceDiff = Array.from(selectedDiffs).join(', ');
+}
+
+function selectPracticeClass(el, val) {
+  practiceClass = val;
+  document.querySelectorAll('#practiceClassRow .diff-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function selectPracticeSubject(el, val) {
+  practiceSubject = val;
+  document.querySelectorAll('#practiceSubjectRow .diff-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+async function generatePracticeQ() {
+  const cls = practiceClass;
+  const subj = practiceSubject;
+  const topic = document.getElementById('practiceTopic').value.trim() || subj;
+  const diff = practiceDiff;
+
+  const btn = document.querySelector('.practice-gen-btn');
+  btn.textContent = '⏳ Generating...';
+  btn.disabled = true;
+  document.getElementById('practiceQCard').style.display = 'none';
+  document.getElementById('practiceShowBtn').style.display = 'none';
+  document.getElementById('practiceAnsCard').style.display = 'none';
+
+  try {
+    const diffArr = Array.from(selectedDiffs);
+    const diffLabel = diffArr.join(' & ');
+    const mixNote = diffArr.length > 1
+      ? `Mix the difficulty: include some ${diffLabel} level questions.`
+      : `All 5 questions should be ${diffLabel} level.`;
+
+    const resp = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1000,
+        temperature: 0.8,
+        messages: [{
+          role: 'system',
+          content: `You are an expert question paper setter for ${cls} students in India.
+Your job: Generate exactly 5 practice questions for subject "${subj}" on topic "${topic}".
+${mixNote}
+STRICT RULES:
+- Output ONLY the 5 questions, nothing else
+- Number them: 1. 2. 3. 4. 5.
+- No answers, no hints, no explanations, no preamble
+- Make each question unique and different
+- Questions must match ${cls} syllabus level`
+        }, { role: 'user', content: `Give me 5 ${subj} practice questions on ${topic}.` }]
+      })
+    });
+    if (!resp.ok) throw new Error('Network error ' + resp.status);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.choices[0].message.content.trim();
+    // Robust parsing - split by numbered lines
+    const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    practiceQuestions = [];
+    let current = '';
+    for (const line of lines) {
+      if (/^[1-5][\.\)]/.test(line)) {
+        if (current.length > 10) practiceQuestions.push(current);
+        current = line.replace(/^[1-5][\.\)]\s*/, '');
+      } else if (current) {
+        current += ' ' + line;
+      }
+    }
+    if (current.length > 10) practiceQuestions.push(current);
+    if (!practiceQuestions.length) practiceQuestions = lines.filter(l => l.length > 15);
+    currentPracticeIdx = 0;
+    renderPracticeQuestion();
+  } catch(e) {
+    showToast('❌ ' + (e.message || 'Could not generate questions'));
+  } finally {
+    btn.textContent = '⚡ Generate Questions';
+    btn.disabled = false;
+  }
+}
+
+function renderPracticeQuestion() {
+  if (!practiceQuestions.length) return;
+  const q = practiceQuestions[currentPracticeIdx];
+  const qCard = document.getElementById('practiceQCard');
+  const qText = document.getElementById('practiceQText');
+  qText.innerHTML = '';
+  // Show question number indicator
+  const numEl = document.createElement('div');
+  numEl.style.cssText = 'font-size:11px;color:var(--muted);font-weight:700;margin-bottom:6px;';
+  numEl.textContent = `Question ${currentPracticeIdx+1} of ${practiceQuestions.length}`;
+  qText.appendChild(numEl);
+  const textEl = document.createElement('div');
+  textEl.textContent = q;
+  qText.appendChild(textEl);
+  // Next question button
+  if (practiceQuestions.length > 1) {
+    const navRow = document.createElement('div');
+    navRow.style.cssText = 'display:flex;gap:8px;margin-top:12px;';
+    if (currentPracticeIdx > 0) {
+      const prevBtn = document.createElement('button');
+      prevBtn.style.cssText = 'flex:1;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:var(--muted);font-size:13px;cursor:pointer;';
+      prevBtn.textContent = '← Prev';
+      prevBtn.onclick = () => { currentPracticeIdx--; renderPracticeQuestion(); };
+      navRow.appendChild(prevBtn);
+    }
+    if (currentPracticeIdx < practiceQuestions.length - 1) {
+      const nextBtn = document.createElement('button');
+      nextBtn.style.cssText = 'flex:1;padding:8px;background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);border-radius:10px;color:#a09aff;font-size:13px;font-weight:700;cursor:pointer;';
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => { currentPracticeIdx++; renderPracticeQuestion(); };
+      navRow.appendChild(nextBtn);
+    }
+    qText.appendChild(navRow);
+  }
+  qCard.style.display = 'block';
+  document.getElementById('practiceShowBtn').style.display = 'block';
+  document.getElementById('practiceAnsCard').style.display = 'none';
+}
+
+async function showPracticeAnswer() {
+  const btn = document.getElementById('practiceShowBtn');
+  btn.textContent = '⏳ Solving...';
+  btn.disabled = true;
+  try {
+    const currentQ = practiceQuestions[currentPracticeIdx] || '';
+    const resp = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1024,
+        temperature: 0,
+        messages: [{
+          role: 'system',
+          content: `You are an expert tutor. Solve the question step by step.
+Format:
+Concept Used: [concept]
+Step 1: [step]
+Step 2: [step]
+★ Final Answer: [answer]
+ZERO LaTeX. Powers: x², x³. Square root: √(x).`
+        }, { role: 'user', content: currentQ }]
+      })
+    });
+    const data = await resp.json();
+    let ans = data.choices[0].message.content.trim();
+    const body = document.getElementById('practiceAnsBody');
+    body.innerHTML = '';
+    ans.split('\n').forEach(line => {
+      const div = document.createElement('div');
+      if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
+        div.className = 'final-answer-box';
+        div.innerHTML = `<span class="fa-text">${line.replace('★ ','')}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)">📋</button>`;
+      } else if (line.startsWith('Concept Used:')) {
+        div.className = 'concept-box';
+        div.textContent = line;
+      } else {
+        div.textContent = line;
+        div.style.marginBottom = '4px';
+      }
+      body.appendChild(div);
+    });
+    document.getElementById('practiceAnsCard').style.display = 'block';
+  } catch(e) {
+    showToast('❌ Could not get answer');
+  } finally {
+    btn.textContent = '👁️ Show Answer';
+    btn.disabled = false;
+  }
+}
+
 document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') solveDoubt(); });
 applyLang();
+renderHistory(); // load history on page start
 </script>
 
 <script>
@@ -1498,6 +2063,72 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(swUrl).catch(() => {});
 }
 </script>
+
+  <!-- History Detail Page -->
+  <div class="practice-page" id="historyDetailPage">
+    <div class="practice-header">
+      <button class="practice-back" onclick="closeHistoryDetail()">←</button>
+      <div class="practice-title">📖 Saved Doubt</div>
+    </div>
+    <div class="practice-body">
+      <div style="background:var(--card);border-radius:14px;padding:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.07);">
+        <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:6px;">QUESTION</div>
+        <div id="hdQuestion" style="font-size:15px;color:var(--text);line-height:1.6;"></div>
+        <div id="hdMeta" style="font-size:11px;color:var(--muted);margin-top:6px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:8px;">SOLUTION</div>
+      <div id="hdAnswerBody" style="font-size:15px;line-height:1.8;"></div>
+    </div>
+  </div>
+
+  <!-- Feature 4 - Practice Mode Page -->
+  <div class="practice-page" id="practicePage">
+    <div class="practice-header">
+      <button class="practice-back" onclick="closePractice()">←</button>
+      <div class="practice-title">🎯 Practice Mode</div>
+    </div>
+    <div class="practice-body">
+      <div class="practice-label">CLASS</div>
+      <div class="practice-diff-row" id="practiceClassRow">
+        <div class="diff-pill active" onclick="selectPracticeClass(this,'Class 1-10')">Class 1-10</div>
+        <div class="diff-pill" onclick="selectPracticeClass(this,'Class 11-12')">Class 11-12</div>
+        <div class="diff-pill" onclick="selectPracticeClass(this,'JEE/NEET')">JEE/NEET</div>
+        <div class="diff-pill" onclick="selectPracticeClass(this,'Others')">Others</div>
+      </div>
+      <div class="practice-label">SUBJECT</div>
+      <div class="practice-diff-row" id="practiceSubjectRow">
+        <div class="diff-pill active" onclick="selectPracticeSubject(this,'Maths')">📐 Maths</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Physics')">⚡ Physics</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Chemistry')">🧪 Chemistry</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Biology')">🧬 Biology</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'English')">📝 English</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Economics')">📊 Economics</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Business Studies')">📈 Business Studies</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Social Science')">🌍 Social Science</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Computer Science')">💻 Computer Science</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Others')">💡 Others</div>
+      </div>
+      <div class="practice-label">TOPIC (type it)</div>
+      <input class="practice-input" id="practiceTopic" placeholder="e.g. Quadratic Equations, Newton's Laws..." />
+      <div class="practice-label">DIFFICULTY</div>
+      <div class="practice-diff-row">
+        <div class="diff-pill active" onclick="selectDiff(this,'Easy')">🟢 Easy</div>
+        <div class="diff-pill" onclick="selectDiff(this,'Medium')">🟡 Medium</div>
+        <div class="diff-pill" onclick="selectDiff(this,'Hard')">🔴 Hard</div>
+      </div>
+      <button class="practice-gen-btn" onclick="generatePracticeQ()">⚡ Generate Questions</button>
+
+      <div class="practice-question-card" id="practiceQCard">
+        <div class="practice-q-label">PRACTICE QUESTION</div>
+        <div class="practice-q-text" id="practiceQText"></div>
+      </div>
+      <button class="practice-show-btn" id="practiceShowBtn" style="display:none" onclick="showPracticeAnswer()">👁️ Show Answer</button>
+      <div class="practice-answer-card" id="practiceAnsCard">
+        <div class="practice-q-label">SOLUTION</div>
+        <div id="practiceAnsBody"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Crop Modal - Feature 2 -->
   <div class="crop-modal" id="cropModal">
