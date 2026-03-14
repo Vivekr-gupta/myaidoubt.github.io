@@ -1728,7 +1728,7 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
           nextBtn.onclick = () => { nextBtn.remove(); revealNext(); };
           answerBody.appendChild(nextBtn);
         }
-        answerBody.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        answerBody.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
       revealNext(); // reveal Problem first automatically
     }
@@ -1802,7 +1802,11 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
     answerCard.style.display = 'block';
     const historyLabel = doubt || ('📷 Photo ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
     addToHistory(historyLabel);
-    setTimeout(() => answerCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    setTimeout(() => {
+      const rect = answerCard.getBoundingClientRect();
+      const scrollY = window.scrollY + rect.top - 80;
+      window.scrollTo({ top: scrollY, behavior: 'smooth' });
+    }, 100);
 
   } catch (err) {
     showError('❌ ' + err.message);
@@ -2009,16 +2013,7 @@ function showPrivacyPolicy() {
 
 function openContact() {
   const u = 'myaiDoubt'; const d = 'gmail'; const t = 'com';
-  const email = u + '@' + d + '.' + t;
-  const gmail = 'googlegmail://co?to=' + email + '&subject=MyAIDoubt%20-%20Contact';
-  const mailto = 'mailto:' + email + '?subject=MyAIDoubt%20-%20Contact';
-  const a = document.createElement('a');
-  a.href = gmail;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => { window.location.href = mailto; }, 600);
+  window.location.href = 'mailto:' + u + '@' + d + '.' + t + '?subject=MyAIDoubt%20-%20Contact';
 }
 
 function copyFinalAnswer(btn) {
@@ -2198,6 +2193,12 @@ function renderPracticeQuestion() {
   qCard.style.display = 'block';
   document.getElementById('practiceShowBtn').style.display = 'block';
   document.getElementById('practiceAnsCard').style.display = 'none';
+  setTimeout(() => {
+    const page = document.getElementById('practicePage');
+    const rect = qCard.getBoundingClientRect();
+    const pageRect = page.getBoundingClientRect();
+    page.scrollTo({ top: page.scrollTop + rect.top - pageRect.top - 80, behavior: 'smooth' });
+  }, 150);
 }
 
 async function showPracticeAnswer() {
