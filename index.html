@@ -468,9 +468,12 @@ textarea::placeholder {
 .others-item:hover { background: rgba(108,99,255,0.12); color: #a09aff; }
 
 /* Feature 1 - Copy answer button */
-.final-answer-box { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.fa-text { flex: 1; }
+.final-answer-box { position: relative; padding-top: 10px; }
+.fa-text { display: block; width: 100%; padding-right: 0; }
 .copy-ans-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   background: rgba(0,229,255,0.15);
   border: 1px solid rgba(0,229,255,0.3);
   border-radius: 8px;
@@ -478,8 +481,8 @@ textarea::placeholder {
   font-size: 14px;
   cursor: pointer;
   padding: 4px 8px;
-  flex-shrink: 0;
   transition: background 0.2s;
+  line-height: 1;
 }
 .copy-ans-btn:active { background: rgba(0,229,255,0.3); }
 
@@ -607,11 +610,56 @@ textarea::placeholder {
   margin-bottom: 12px;
 }
 .practice-answer-card {
-  background: var(--card);
-  border-radius: 16px;
+  background: var(--answer-bg);
+  border-radius: 0;
   padding: 16px;
-  border: 1px solid rgba(108,99,255,0.2);
+  border: none;
+  border-top: 1px solid rgba(108,99,255,0.2);
   display: none;
+  margin-left: -16px;
+  margin-right: -16px;
+  font-size: 15px;
+  line-height: 2;
+}
+
+/* Formula Box */
+.formula-box {
+  background: rgba(255,190,11,0.08);
+  border: 1px solid rgba(255,190,11,0.25);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.formula-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffbe0b;
+  letter-spacing: 0.5px;
+}
+.formula-box-toggle { font-size: 11px; color: var(--muted); }
+.formula-box-content {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  display: none;
+}
+.formula-box-content.open { display: block; }
+.formula-tag {
+  display: inline-block;
+  background: rgba(255,190,11,0.12);
+  border: 1px solid rgba(255,190,11,0.2);
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  font-size: 12px;
+  color: #ffbe0b;
+  font-weight: 600;
 }
 
 /* Feature 2 - Crop Modal */
@@ -627,7 +675,7 @@ textarea::placeholder {
   padding: 16px;
 }
 .crop-modal.open { display: flex; }
-.crop-title { color: white; font-size: 15px; font-weight: 700; margin-bottom: 12px; text-align: center; }
+.crop-title { color: white; font-size: 15px; font-weight: 700; margin-bottom: 6px; text-align: center; }
 .crop-subtitle { color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 16px; text-align: center; }
 .crop-container {
   position: relative;
@@ -635,17 +683,31 @@ textarea::placeholder {
   max-height: 55vh;
   overflow: hidden;
   border-radius: 8px;
-  cursor: crosshair;
   user-select: none;
+  touch-action: none;
 }
 .crop-container img { display: block; max-width: 100%; max-height: 55vh; object-fit: contain; }
 .crop-selection {
   position: absolute;
   border: 2px solid #00e5ff;
-  background: rgba(0,229,255,0.1);
-  pointer-events: none;
+  background: rgba(0,229,255,0.08);
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
   display: none;
+  touch-action: none;
 }
+/* 4 edge handles */
+.crop-handle {
+  position: absolute;
+  background: #00e5ff;
+  border-radius: 4px;
+  cursor: pointer;
+  touch-action: none;
+  opacity: 0.85;
+}
+.crop-handle-top    { width: 40px; height: 5px; top: -3px;    left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.crop-handle-bottom { width: 40px; height: 5px; bottom: -3px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.crop-handle-left   { width: 5px; height: 40px; left: -3px;   top: 50%;  transform: translateY(-50%); cursor: ew-resize; }
+.crop-handle-right  { width: 5px; height: 40px; right: -3px;  top: 50%;  transform: translateY(-50%); cursor: ew-resize; }
 .crop-actions { display: flex; gap: 12px; margin-top: 16px; width: 100%; max-width: 400px; }
 .crop-btn-use { flex: 1; background: linear-gradient(135deg,#6c63ff,#ff6b9d); border: none; border-radius: 12px; padding: 13px; color: white; font-size: 14px; font-weight: 700; cursor: pointer; }
 .crop-btn-skip { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 13px; color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer; }
@@ -878,7 +940,31 @@ textarea::placeholder {
   <!-- Footer -->
   <div class="footer">
     <div class="footer-badge">Made with <span class="footer-heart">❤️</span> for Students</div>
+  <button onclick="window.open('https://forms.gle/QZMKReHWbioivGCd6','_blank')" style="margin-top:12px;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.3);border-radius:14px;padding:12px 24px;color:#a09aff;font-size:14px;font-weight:700;cursor:pointer;width:100%;">💬 Help & Feedback</button>
   <button id="installBtn" style="display:none; margin-top:14px; background:linear-gradient(135deg,#6c63ff,#ff6b9d); color:#fff; border:none; border-radius:16px; padding:14px 28px; font-size:15px; font-weight:700; cursor:pointer; width:100%; box-shadow: 0 8px 24px rgba(108,99,255,0.35);">📱 Install AI Doubt Solver for faster doubt solving!</button>
+  <div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;">
+    <span onclick="showPrivacyPolicy()" style="color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">Privacy Policy</span>
+    <span style="color:var(--muted);opacity:0.4;">•</span>
+    <span onclick="openContact()" style="color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">Contact</span>
+  </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div id="privacyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;overflow-y:auto;padding:24px 16px;">
+    <div style="max-width:480px;margin:0 auto;background:var(--card);border-radius:20px;padding:24px;border:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:800;color:var(--text);">🔒 Privacy Policy</div>
+        <button onclick="document.getElementById('privacyModal').style.display='none'" style="background:rgba(255,255,255,0.08);border:none;border-radius:8px;color:var(--text);font-size:16px;width:32px;height:32px;cursor:pointer;">✕</button>
+      </div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+        <p style="margin-bottom:10px;"><strong style="color:var(--text);">Last updated:</strong> 2026</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text);">Data We Collect:</strong> MyAIDoubt does not collect or store any personal data. Your questions are processed in real-time and are not saved on our servers.</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text);">Local Storage:</strong> We store your recent doubts locally on your device only (last 24 hours) so you can revisit them. This data never leaves your device.</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text);">Photos:</strong> Any photos you upload are sent directly to our AI for processing and are never stored.</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text);">Third-party AI:</strong> Questions are processed via a secure AI. No personally identifiable information is shared.</p>
+        <p><strong style="color:var(--text);">Contact:</strong> For any privacy concerns, email us at <span id="privacyEmail" onclick="openContact()" style="color:#a09aff;cursor:pointer;text-decoration:underline;"></span></p>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -886,7 +972,7 @@ textarea::placeholder {
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ===== PARTICLES =====
 (function() {
   const c = document.getElementById('particles');
@@ -1061,10 +1147,13 @@ function updateCount() {
   document.getElementById('charCount').textContent = val.length + ' / 500';
 }
 
-// Feature 2 - Crop Tool
+// Feature 2 - Crop Tool (pre-selected center box + 4 edge handles)
 let cropImageSrc = null;
-let cropStartX, cropStartY, cropEndX, cropEndY, isCropping = false;
 let cropOriginalFile = null;
+// cropBox stores position as % of container size
+let cropBox = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
+let activeHandle = null;
+let handleDragStart = null;
 
 function openCropModal(src, file) {
   cropImageSrc = src;
@@ -1072,84 +1161,130 @@ function openCropModal(src, file) {
   const modal = document.getElementById('cropModal');
   const img = document.getElementById('cropImage');
   img.src = src;
-  document.getElementById('cropSelection').style.display = 'none';
   modal.classList.add('open');
 
-  const container = document.getElementById('cropContainer');
-  container.onmousedown = container.ontouchstart = startCrop;
-  container.onmousemove = container.ontouchmove = moveCrop;
-  container.onmouseup = container.ontouchend = endCrop;
+  img.onload = () => {
+    // Pre-select center 80% box
+    cropBox = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
+    renderCropBox();
+  };
+
+  // Attach handle drag listeners
+  ['Top','Bottom','Left','Right'].forEach(dir => {
+    const el = document.getElementById('handle' + dir);
+    el.addEventListener('touchstart', e => startHandleDrag(e, dir.toLowerCase()), { passive: false });
+    el.addEventListener('mousedown',  e => startHandleDrag(e, dir.toLowerCase()));
+  });
+
+  document.addEventListener('mousemove', onHandleDragMove);
+  document.addEventListener('touchmove', onHandleDragMove, { passive: false });
+  document.addEventListener('mouseup',   stopHandleDrag);
+  document.addEventListener('touchend',  stopHandleDrag);
 }
 
-function getCropCoords(e, container) {
-  const rect = container.getBoundingClientRect();
+function renderCropBox() {
+  const container = document.getElementById('cropContainer');
+  const sel = document.getElementById('cropSelection');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+  sel.style.display = 'block';
+  sel.style.left   = (cropBox.x * W) + 'px';
+  sel.style.top    = (cropBox.y * H) + 'px';
+  sel.style.width  = (cropBox.w * W) + 'px';
+  sel.style.height = (cropBox.h * H) + 'px';
+}
+
+function startHandleDrag(e, handle) {
+  e.preventDefault();
+  e.stopPropagation();
+  activeHandle = handle;
   const touch = e.touches ? e.touches[0] : e;
-  return {
-    x: Math.max(0, Math.min(touch.clientX - rect.left, rect.width)),
-    y: Math.max(0, Math.min(touch.clientY - rect.top, rect.height))
+  const container = document.getElementById('cropContainer');
+  const rect = container.getBoundingClientRect();
+  handleDragStart = {
+    clientX: touch.clientX, clientY: touch.clientY,
+    box: { ...cropBox },
+    rectW: rect.width, rectH: rect.height,
+    rectLeft: rect.left, rectTop: rect.top
   };
 }
 
-function startCrop(e) {
+function onHandleDragMove(e) {
+  if (!activeHandle || !handleDragStart) return;
   e.preventDefault();
-  isCropping = true;
-  const coords = getCropCoords(e, this);
-  cropStartX = coords.x; cropStartY = coords.y;
-  const sel = document.getElementById('cropSelection');
-  sel.style.display = 'block';
-  sel.style.left = cropStartX + 'px';
-  sel.style.top = cropStartY + 'px';
-  sel.style.width = '0px'; sel.style.height = '0px';
+  const touch = e.touches ? e.touches[0] : e;
+  const dx = (touch.clientX - handleDragStart.clientX) / handleDragStart.rectW;
+  const dy = (touch.clientY - handleDragStart.clientY) / handleDragStart.rectH;
+  const b = { ...handleDragStart.box };
+  const MIN = 0.08;
+
+  if (activeHandle === 'top') {
+    let newY = b.y + dy;
+    let newH = b.h - dy;
+    if (newH < MIN) { newY = b.y + b.h - MIN; newH = MIN; }
+    if (newY < 0)   { newH += newY; newY = 0; }
+    cropBox.y = newY; cropBox.h = newH;
+  } else if (activeHandle === 'bottom') {
+    let newH = b.h + dy;
+    if (newH < MIN) newH = MIN;
+    if (b.y + newH > 1) newH = 1 - b.y;
+    cropBox.h = newH;
+  } else if (activeHandle === 'left') {
+    let newX = b.x + dx;
+    let newW = b.w - dx;
+    if (newW < MIN) { newX = b.x + b.w - MIN; newW = MIN; }
+    if (newX < 0)   { newW += newX; newX = 0; }
+    cropBox.x = newX; cropBox.w = newW;
+  } else if (activeHandle === 'right') {
+    let newW = b.w + dx;
+    if (newW < MIN) newW = MIN;
+    if (b.x + newW > 1) newW = 1 - b.x;
+    cropBox.w = newW;
+  }
+  renderCropBox();
 }
 
-function moveCrop(e) {
-  if (!isCropping) return;
-  e.preventDefault();
-  const coords = getCropCoords(e, document.getElementById('cropContainer'));
-  cropEndX = coords.x; cropEndY = coords.y;
-  const sel = document.getElementById('cropSelection');
-  sel.style.left = Math.min(cropStartX, cropEndX) + 'px';
-  sel.style.top = Math.min(cropStartY, cropEndY) + 'px';
-  sel.style.width = Math.abs(cropEndX - cropStartX) + 'px';
-  sel.style.height = Math.abs(cropEndY - cropStartY) + 'px';
+function stopHandleDrag() {
+  activeHandle = null;
+  handleDragStart = null;
 }
 
-function endCrop(e) { isCropping = false; }
+function closeCropListeners() {
+  document.removeEventListener('mousemove', onHandleDragMove);
+  document.removeEventListener('touchmove', onHandleDragMove);
+  document.removeEventListener('mouseup',   stopHandleDrag);
+  document.removeEventListener('touchend',  stopHandleDrag);
+}
 
 function applyCrop() {
   const img = document.getElementById('cropImage');
   const container = document.getElementById('cropContainer');
-  const sel = document.getElementById('cropSelection');
-  
-  // If no selection made, skip crop
-  const w = parseFloat(sel.style.width), h = parseFloat(sel.style.height);
-  if (!w || !h || w < 20 || h < 20) { skipCrop(); return; }
 
-  const scaleX = img.naturalWidth / img.clientWidth;
-  const scaleY = img.naturalHeight / img.clientHeight;
-  const sx = parseFloat(sel.style.left) * scaleX;
-  const sy = parseFloat(sel.style.top) * scaleY;
-  const sw = w * scaleX;
-  const sh = h * scaleY;
+  const scaleX = img.naturalWidth  / container.clientWidth;
+  const scaleY = img.naturalHeight / container.clientHeight;
+  const sx = cropBox.x * container.clientWidth  * scaleX;
+  const sy = cropBox.y * container.clientHeight * scaleY;
+  const sw = cropBox.w * container.clientWidth  * scaleX;
+  const sh = cropBox.h * container.clientHeight * scaleY;
 
   const canvas = document.createElement('canvas');
   canvas.width = sw; canvas.height = sh;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-  
+  canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+
   const cropped = canvas.toDataURL('image/jpeg', 0.85);
   photoBase64 = cropped.split(',')[1];
   photoMediaType = 'image/jpeg';
   document.getElementById('photoPreview').src = cropped;
   document.getElementById('photoPreviewWrap').style.display = 'block';
   document.getElementById('cropModal').classList.remove('open');
+  closeCropListeners();
   showToast('✅ Photo cropped!');
 }
 
 function skipCrop() {
-  // Use original image without crop
   processPhotoFromSrc(cropImageSrc);
   document.getElementById('cropModal').classList.remove('open');
+  closeCropListeners();
 }
 
 function processPhotoFromSrc(src) {
@@ -1413,20 +1548,21 @@ async function solveDoubt() {
 ${ownerInstruction}
 
 LEARN MODE — STEP BY STEP REVEAL:
-Output the solution in EXACTLY this format, with each part on its own line:
+SMART DETECTION: If question has numbers/equations → show calculation below each step label. If theory → 1-2 line explanation per step.
 
-Problem: [one line description]
-Concept Used: [formula/theorem/concept]
-Step 1: [first step]
-Step 2: [second step]
-Step 3: [third step - add more steps if needed]
+Output in EXACTLY this format:
+Problem: [one line]
+Concept Used: [formula or concept — one line]
+Step 1: [what you're doing — max 6 words]
+[calculation or explanation on this line]
+Step 2: [what you're doing — max 6 words]
+[calculation or explanation on this line]
 ★ Final Answer: [result]
 
 RULES:
-- Each line must start with its exact label (Problem:, Concept Used:, Step 1:, etc.)
-- Keep each step SHORT — one calculation per step
-- Maximum 6 steps
-- No extra text, no intro, no outro
+- Max 5 steps
+- No filler text, no intro, no outro
+- Each step label on its own line, content on next line
 ZERO LaTeX. ZERO dollar signs. ZERO backslashes.
 Powers: use x², x³. Square root: √(x). Infinity: ∞.`
 
@@ -1465,62 +1601,55 @@ Use the EXACT same symbols and notation style in your answer.
 Example: if question uses x^2 → use x², if question uses log_2 → use log₂, if question uses (-∞,-2) → keep that format exactly.
 Never introduce new symbol styles not present in the question.
 
-ANSWER FORMAT — always follow exactly:
+SMART DETECTION RULE (do this first):
+Look at the question. Decide which type it is:
+TYPE A — Has numbers, equations, formulas, calculations → use CALCULATION FORMAT
+TYPE B — Pure theory, definition, concept explanation → use THEORY FORMAT
+
+CALCULATION FORMAT (TYPE A):
 Problem: [restate in one line]
-
 Concept Used: [formula or theorem — one line]
-
-Step 1: [calculation only — no long text]
-
-Step 2: [calculation only]
-
-Step 3: [calculation only]
-
+Step 1: [what you are doing — max 6 words]
+[calculation on next line]
+Step 2: [what you are doing — max 6 words]
+[calculation on next line]
+Step 3: [what you are doing — max 6 words]
+[calculation on next line]
 ★ Final Answer: [result clearly]
+
+THEORY FORMAT (TYPE B):
+Problem: [restate in one line]
+Concept Used: [key concept — one line]
+Step 1: [clear explanation — 1-2 lines max]
+Step 2: [clear explanation — 1-2 lines max]
+Step 3: [clear explanation — 1-2 lines max]
+★ Final Answer: [conclusion in one line]
+
+CONSISTENCY RULES (always follow):
+- NEVER mix formats — pick one and stick to it
+- Max 5 steps — never more
+- Each step label on its own line, calculation/explanation on next line
+- No "we know that", "it is given that", no filler text
+- No intro like "Sure!" or "Great question!" — start directly
+- Never repeat same info in multiple steps
+- Keep same answer length every time for same type of question
 
 MATH FORMAT RULES:
 - ZERO LaTeX. ZERO backslashes. ZERO {braces}. ZERO dollar signs.
-- Subscripts: x₁ x₂ x₃ log₂ log₃ — use actual subscript characters
 - Powers: x² x³ x⁻¹ — use actual superscript characters
 - Square root: √x or √(expression) — never write sqrt
 - Infinity: ∞ — never write "infinity"
 - Fractions: write as (a)/(b)
-- Trig: always write sin, cos, tan, log in full
-- Keep full equation on one line — never break mid-expression
-
-CONTENT RULES (Note 3 — keep it short):
-- Prefer numbered steps over long paragraphs
-- No "we know that", "it is given that" — just show the math
-- JEE/NEET: skip obvious steps, show only key calculations
-- Max 5 steps — summarize if longer
-- Never repeat same explanation
-
-KEY POINT RULE:
-- Mark important formulas with ★ before them
-- Example: ★ AM-GM: (a+b)/2 ≥ √(ab)
+- Trig: sin, cos, tan, log in full
+- Keep full equation on ONE line — never break mid-expression
+- Subscripts: x₁ x₂ log₂ — use actual subscript characters
 
 FINAL ANSWER RULE:
 - Always end with: ★ Final Answer: [result]
-- Final answer on its own line
+- Final answer on its own line, never split across lines
 
-SUBSTITUTION RULE:
-- Explain substitution in ONE line before using it
-- Example: Let y = log₃x, so y₁+y₂+y₃ = 9
-
-Start directly — no "Sure!", no intro, no outro.
-
-LIMITS & CALCULUS RULE:
-- For limit problems, always use Taylor series expansion OR L'Hôpital's rule
-- Apply L'Hôpital's rule as final verification for 0/0 or ∞/∞ forms
-- Never skip steps in limit evaluation — small errors compound
-
-VERIFICATION STEP (for maths/physics):
-After solving, quickly verify your answer using one of:
-- Substitute answer back into original equation
-- Check with a simpler method
-- Check boundary/edge cases
-If you find an error, correct it silently and show the right answer.
-Never show the verification process — only show if it caused a correction.`;
+VERIFICATION (silent):
+After solving, verify answer mentally. If wrong, correct silently. Never show verification steps.`;
 
     const userMsg = doubt || 'Solve the question in this image completely.';
     let messages;
@@ -1612,6 +1741,9 @@ Never show the verification process — only show if it caused a correction.`;
       box.textContent = answer.replace('★ ', '').replace('Final Answer:', '').trim();
       answerBody.appendChild(box);
     } else {
+      // Add formula box above solution
+      const fBox = createFormulaBox(answer);
+      if (fBox) answerBody.appendChild(fBox);
       // Pre-process: merge "Final Answer:" on one line with next line if empty answer
       let rawLines = answer.split('\n');
       let lines = [];
@@ -1818,13 +1950,108 @@ function clearAllHistory() {
   }
 }
 
+// Formula Box Helper
+function extractFormulas(text) {
+  const formulas = [];
+  const lines = text.split('\n');
+  lines.forEach(line => {
+    // Extract from Concept Used line
+    if (line.startsWith('Concept Used:')) {
+      const val = line.replace('Concept Used:', '').replace('★', '').trim();
+      if (val) formulas.push(val);
+    }
+    // Extract math expressions: things with =, ^, √, ×, ÷, fractions
+    const mathMatches = line.match(/[A-Za-z\d\(\)]+[\s]*[=\^][\s]*[^\s,\.]{2,}/g);
+    if (mathMatches) {
+      mathMatches.forEach(m => {
+        const clean = m.trim();
+        if (clean.length > 3 && clean.length < 40 && !formulas.includes(clean)) {
+          formulas.push(clean);
+        }
+      });
+    }
+  });
+  // Deduplicate and limit to 6
+  return [...new Set(formulas)].slice(0, 6);
+}
+
+function createFormulaBox(answer) {
+  const formulas = extractFormulas(answer);
+  if (!formulas.length) return null;
+  const box = document.createElement('div');
+  box.className = 'formula-box';
+  const tags = formulas.map(f => '<span class="formula-tag">' + f + '</span>').join('');
+  const header = document.createElement('div');
+  header.className = 'formula-box-header';
+  header.innerHTML = '📌 Formulas & Concepts Used <span class="formula-box-toggle">▼ show</span>';
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'formula-box-content';
+  contentDiv.innerHTML = tags;
+  header.onclick = function() {
+    contentDiv.classList.toggle('open');
+    header.querySelector('.formula-box-toggle').textContent = contentDiv.classList.contains('open') ? '▲ hide' : '▼ show';
+  };
+  box.appendChild(header);
+  box.appendChild(contentDiv);
+  return box;
+}
+
 // Feature 1 - Copy Final Answer
+function showPrivacyPolicy() {
+  document.getElementById('privacyModal').style.display = 'block';
+  // Build email via JS so Cloudflare can't obfuscate it
+  const el = document.getElementById('privacyEmail');
+  if (el && !el.textContent) {
+    const u = 'myaiDoubt'; const d = 'gmail'; const t = 'com';
+    el.textContent = u + '@' + d + '.' + t;
+  }
+}
+
+function openContact() {
+  const u = 'myaiDoubt'; const d = 'gmail'; const t = 'com';
+  const email = u + '@' + d + '.' + t;
+  const gmail = 'googlegmail://co?to=' + email + '&subject=MyAIDoubt%20-%20Contact';
+  const mailto = 'mailto:' + email + '?subject=MyAIDoubt%20-%20Contact';
+  const a = document.createElement('a');
+  a.href = gmail;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => { window.location.href = mailto; }, 600);
+}
+
 function copyFinalAnswer(btn) {
-  const text = btn.closest('.final-answer-box').querySelector('.fa-text').textContent;
-  navigator.clipboard.writeText(text).then(() => {
+  const box = btn.closest('.final-answer-box');
+  const faEl = box ? box.querySelector('.fa-text') : null;
+  const text = faEl ? faEl.textContent : '';
+  if (!text) { showToast('Nothing to copy'); return; }
+
+  const doSuccess = () => {
     btn.textContent = '✅';
+    showToast('✅ Copied!');
     setTimeout(() => btn.textContent = '📋', 1500);
-  }).catch(() => showToast('Could not copy'));
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(doSuccess).catch(() => fallbackCopy(text, doSuccess));
+  } else {
+    fallbackCopy(text, doSuccess);
+  }
+}
+
+function fallbackCopy(text, onSuccess) {
+  try {
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(el);
+    el.focus(); el.select();
+    el.setSelectionRange(0, 99999);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(el);
+    if (ok) onSuccess(); else showToast('Copy not supported');
+  } catch { showToast('Copy failed'); }
 }
 
 // Feature 4 - Practice Mode
@@ -1989,12 +2216,24 @@ async function showPracticeAnswer() {
         messages: [{
           role: 'system',
           content: `You are an expert tutor. Solve the question step by step.
-Format:
-Concept Used: [concept]
-Step 1: [step]
-Step 2: [step]
-★ Final Answer: [answer]
-ZERO LaTeX. Powers: x², x³. Square root: √(x).`
+
+SMART DETECTION: If question has numbers/equations/formulas → TYPE A. If pure theory → TYPE B.
+
+TYPE A FORMAT:
+Concept Used: [formula — one line]
+Step 1: [what you're doing — max 6 words]
+[calculation on next line]
+Step 2: [what you're doing — max 6 words]
+[calculation on next line]
+★ Final Answer: [result]
+
+TYPE B FORMAT:
+Concept Used: [concept — one line]
+Step 1: [explanation — 1-2 lines]
+Step 2: [explanation — 1-2 lines]
+★ Final Answer: [conclusion]
+
+RULES: Max 5 steps. No filler. Start directly. ZERO LaTeX. Powers: x², x³. √(x). ∞.`
         }, { role: 'user', content: currentQ }]
       })
     });
@@ -2002,7 +2241,21 @@ ZERO LaTeX. Powers: x², x³. Square root: √(x).`
     let ans = data.choices[0].message.content.trim();
     const body = document.getElementById('practiceAnsBody');
     body.innerHTML = '';
-    ans.split('\n').forEach(line => {
+    // Add formula box at top of practice solution
+    const pfBox = createFormulaBox(ans);
+    if (pfBox) body.appendChild(pfBox);
+    // Fix split final answer lines
+    let practiceLines = ans.split('\n');
+    let mergedPractice = [];
+    for (let i = 0; i < practiceLines.length; i++) {
+      const l = practiceLines[i].trim();
+      if ((l === '★ Final Answer:' || l === 'Final Answer:') && i+1 < practiceLines.length) {
+        const next = practiceLines[i+1].trim();
+        if (next) { mergedPractice.push((l.startsWith('★') ? '★ Final Answer: ' : 'Final Answer: ') + next); i++; continue; }
+      }
+      mergedPractice.push(practiceLines[i]);
+    }
+    mergedPractice.forEach(line => {
       const div = document.createElement('div');
       if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
         div.className = 'final-answer-box';
@@ -2012,7 +2265,7 @@ ZERO LaTeX. Powers: x², x³. Square root: √(x).`
         div.textContent = line;
       } else {
         div.textContent = line;
-        div.style.marginBottom = '4px';
+        div.style.marginBottom = line === '' ? '10px' : '6px';
       }
       body.appendChild(div);
     });
@@ -2135,10 +2388,15 @@ if ('serviceWorker' in navigator) {
   <!-- Crop Modal - Feature 2 -->
   <div class="crop-modal" id="cropModal">
     <div class="crop-title">✂️ Crop Your Question</div>
-    <div class="crop-subtitle">Drag to select the question area</div>
+    <div class="crop-subtitle">Drag the edges to adjust the crop area</div>
     <div class="crop-container" id="cropContainer">
       <img id="cropImage" src="" alt="Crop">
-      <div class="crop-selection" id="cropSelection"></div>
+      <div class="crop-selection" id="cropSelection">
+        <div class="crop-handle crop-handle-top"    id="handleTop"></div>
+        <div class="crop-handle crop-handle-bottom" id="handleBottom"></div>
+        <div class="crop-handle crop-handle-left"   id="handleLeft"></div>
+        <div class="crop-handle crop-handle-right"  id="handleRight"></div>
+      </div>
     </div>
     <div class="crop-actions">
       <button class="crop-btn-use" onclick="applyCrop()">✅ Use Cropped</button>
@@ -2148,12 +2406,4 @@ if ('serviceWorker' in navigator) {
 
   <!-- Others dropdown at body level -->
   <div class="others-menu" id="othersMenu">
-    <div class="others-item" onclick="selectOthers('🌍 Social Science')">🌍 Social Science</div>
-    <div class="others-item" onclick="selectOthers('💻 Computer Science')">💻 Computer Science</div>
-    <div class="others-item" onclick="selectOthers('📝 English')">📝 English</div>
-    <div class="others-item" onclick="selectOthers('📊 Economics')">📊 Economics</div>
-    <div class="others-item" onclick="selectOthers('📈 Business Studies')">📈 Business Studies</div>
-    <div class="others-item" onclick="selectOthers('💡 Others')">💡 Others</div>
-  </div>
-</body>
-</html>
+    <div class="others-item" onclick="selectOthers('
