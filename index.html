@@ -140,58 +140,83 @@ body {
 }
 
 /* Header */
-.header { text-align: center; padding: 2px 0 6px; animation: slideDown 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+.hero-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.hero-illus { flex-shrink: 0; animation: illusFloat 3s ease-in-out infinite; }
+@keyframes illusFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+
 @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 
 .badge {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.25);
-  border-radius: 100px; padding: 5px 14px; font-size: 11px; font-weight: 600;
-  color: #a09aff; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;
+  background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3);
+  border-radius: 100px; padding: 5px 14px; font-size: 11px; font-weight: 700;
+  color: #a09aff; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;
+  animation: badgeGlow 2.5s ease-in-out infinite;
 }
-.badge-dot { width: 5px; height: 5px; background: #6c63ff; border-radius: 50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
-
-h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-weight: 900; line-height: 1.05; letter-spacing: -2px; margin-bottom: 10px; }
-.grad1 { background: linear-gradient(135deg,#6c63ff,#a09aff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.grad2 { background: linear-gradient(135deg,#ff6b9d,#ffbe0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.subtitle { color: var(--muted); font-size: 14px; line-height: 1.5; }
-
-/* Class selector */
-.class-row {
-  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-  margin: 8px 0 8px; animation: fadeUp 0.7s 0.1s both;
+@keyframes badgeGlow {
+  0%,100% { box-shadow: 0 0 0px rgba(108,99,255,0); border-color: rgba(108,99,255,0.3); }
+  50% { box-shadow: 0 0 16px rgba(108,99,255,0.5); border-color: rgba(108,99,255,0.8); }
 }
+.badge-dot { width: 6px; height: 6px; background: #6c63ff; border-radius: 50%; animation: pulse 1.5s infinite; box-shadow: 0 0 6px #6c63ff; }
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.5; } }
+
+h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 6px; width: 100%; }
+.grad1 { background: linear-gradient(135deg,#6c63ff,#a09aff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; }
+.grad2 { background: linear-gradient(135deg,#ff6b9d,#ffbe0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; padding-left: 44px; }
+.subtitle { color: var(--muted); font-size: 13px; line-height: 1.5; text-align: center; margin-top: 4px; }
+
+/* Scroll rows */
+.scroll-row {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  animation: fadeUp 0.7s 0.1s both;
+}
+.scroll-row::-webkit-scrollbar { display: none; }
+
+/* Section label */
+.section-label-row {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 6px; margin-top: 8px;
+}
+
+/* Swipe hint */
+.swipe-hint-row {
+  font-size: 10px; color: var(--muted); text-align: right;
+  margin-top: 4px; margin-bottom: 2px; font-weight: 600;
+  opacity: 0.5; animation: swipeAnim 2s ease-in-out infinite;
+}
+@keyframes swipeAnim {
+  0%,100% { opacity: 0.3; transform: translateX(0); }
+  50% { opacity: 0.7; transform: translateX(4px); }
+}
+
 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
+/* Class pills */
 .class-pill {
-  padding: 7px 15px; border-radius: 100px; font-size: 13px; font-weight: 700;
+  flex-shrink: 0; padding: 7px 15px; border-radius: 100px; font-size: 13px; font-weight: 700;
   cursor: pointer; border: 1.5px solid var(--border); background: var(--surface);
   color: var(--muted); transition: all 0.2s; user-select: none;
-  letter-spacing: -0.2px;
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
 }
-.class-pill:hover { transform: translateY(-1px); color: var(--text); }
+.class-pill:hover { color: var(--text); }
 .class-pill.active {
   background: linear-gradient(135deg,#6c63ff,#ff6b9d);
   border-color: transparent; color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(108,99,255,0.35);
-  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(108,99,255,0.35); font-weight: 800;
 }
 
 /* Subject pills */
-.subjects { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 0 0 16px; animation: fadeUp 0.7s 0.15s both; }
-
 .pill {
-  padding: 8px 15px; border-radius: 100px; font-size: 13px; font-weight: 700;
+  flex-shrink: 0; padding: 8px 15px; border-radius: 100px; font-size: 13px; font-weight: 700;
   cursor: pointer; border: 1.5px solid var(--border); background: var(--surface);
   color: var(--muted); transition: all 0.25s; user-select: none;
-  letter-spacing: -0.2px;
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
 }
-.pill:hover { transform: translateY(-2px); color: var(--text); }
-.pill.active { color: white; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); font-weight: 800; }
+.pill:hover { color: var(--text); }
+.pill.active { color: white; box-shadow: 0 8px 24px rgba(0,0,0,0.25); font-weight: 800; }
 .pill.phy.active { background: linear-gradient(135deg,#0ea5e9,#6c63ff); border-color: transparent; }
 .pill.che.active { background: linear-gradient(135deg,#10b981,#00e5ff); border-color: transparent; }
 .pill.mat.active { background: linear-gradient(135deg,#ff6b35,#ffbe0b); border-color: transparent; }
@@ -334,8 +359,8 @@ textarea::placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
-  margin: 0 0 16px;
+  gap: 5px;
+  margin: 8px 0 12px;
   animation: fadeUp 0.7s 0.18s both;
 }
 
@@ -343,15 +368,15 @@ textarea::placeholder {
   display: flex;
   background: var(--surface);
   border: 1.5px solid var(--border);
-  border-radius: 100px;
+  border-radius: 13px;
   padding: 3px;
   gap: 3px;
   width: 100%;
 }
 
 .mode-tab {
-  padding: 8px 0;
-  border-radius: 100px;
+  padding: 6px 0;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -450,17 +475,20 @@ textarea::placeholder {
 
 /* Feature 7 - Others dropdown */
 .others-menu {
-  display: none;
+  visibility: hidden;
+  opacity: 0;
   position: fixed;
   background: var(--card);
   border: 1.5px solid rgba(108,99,255,0.4);
   border-radius: 16px;
   padding: 8px;
-  z-index: 9999;
+  z-index: 99998;
   min-width: 210px;
   box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  transition: opacity 0.15s ease;
+  pointer-events: none;
 }
-.others-menu.open { display: block; animation: fadeUp 0.2s ease; }
+.others-menu.open { visibility: visible; opacity: 1; pointer-events: all; animation: fadeUp 0.2s ease; }
 .others-item {
   padding: 10px 14px; border-radius: 10px; font-size: 14px; font-weight: 600;
   cursor: pointer; color: var(--text); transition: all 0.15s;
@@ -468,8 +496,8 @@ textarea::placeholder {
 .others-item:hover { background: rgba(108,99,255,0.12); color: #a09aff; }
 
 /* Feature 1 - Copy answer button */
-.final-answer-box { position: relative; padding-top: 10px; }
-.fa-text { display: block; width: 100%; padding-right: 0; }
+.final-answer-box { position: relative; padding-top: 10px; word-break: break-word; overflow-wrap: break-word; }
+.fa-text { display: block; width: 100%; padding-right: 36px; box-sizing: border-box; }
 .copy-ans-btn {
   position: absolute;
   top: 10px;
@@ -778,20 +806,28 @@ textarea::placeholder {
   <!-- Top Bar -->
   <div class="topbar">
     <div class="topbar-logo">
-      <svg width="160" height="36" viewBox="0 0 190 50" xmlns="http://www.w3.org/2000/svg">
+      <svg width="170" height="38" viewBox="0 0 200 52" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="logoG1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#FF416C"/>
-            <stop offset="100%" style="stop-color:#FF4B2B"/>
+          <linearGradient id="logoG1" x1="0%" y1="0%" x2="60%" y2="100%">
+            <stop offset="0%" stop-color="#FF2D6B"/>
+            <stop offset="100%" stop-color="#FF0080"/>
           </linearGradient>
           <linearGradient id="logoG2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#FF416C"/>
-            <stop offset="100%" style="stop-color:#FFD700"/>
+            <stop offset="0%" stop-color="#FF2D6B"/>
+            <stop offset="100%" stop-color="#FFD700"/>
           </linearGradient>
+          <linearGradient id="logoYellow" x1="0%" y1="0%" x2="60%" y2="100%">
+            <stop offset="0%" stop-color="#FFD700"/>
+            <stop offset="100%" stop-color="#FF8C00"/>
+          </linearGradient>
+          <filter id="lglow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="1.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
         </defs>
-        <polygon points="20,4 8,29 19,29 12,52 32,20 20,20 30,4" fill="url(#logoG1)"/>
-        <polygon points="32,10 24,28 31,28 27,44 41,22 33,22 40,10" fill="#FFD700" opacity="0.85"/>
-        <text x="50" y="37" font-family="Impact, sans-serif" font-size="26" fill="url(#logoG2)" letter-spacing="1">MyAIDoubt</text>
+        <polygon points="22,2 7,26 18,26 10,50 34,18 21,18 32,2" fill="url(#logoG1)" filter="url(#lglow)"/>
+        <polygon points="32,8 20,30 29,30 23,50 43,22 32,22 40,8" fill="url(#logoYellow)" opacity="0.95" filter="url(#lglow)"/>
+        <text x="52" y="38" font-family="Impact, Arial Black, sans-serif" font-size="27" fill="url(#logoG2)" letter-spacing="0.5">MyAIDoubt</text>
       </svg>
     </div>
     <div class="topbar-actions">
@@ -807,27 +843,85 @@ textarea::placeholder {
 
   <!-- Header -->
   <div class="header">
-    <div class="badge"><div class="badge-dot"></div><span id="badgeText">Powered by AI</span></div>
-    <h1><span class="grad1" id="h1a">Solve Any</span><br><span class="grad2" id="h1b">Doubt Instantly</span></h1>
-    <p class="subtitle" id="subtitleText">Ask anything — type or upload a photo of your question</p>
+    <div style="text-align:center;margin-bottom:2px;">
+      <div class="badge" style="display:inline-flex;"><div class="badge-dot"></div><span id="badgeText">Powered by AI</span></div>
+    </div>
+    <div class="hero-row">
+      <h1><span class="grad1" id="h1a">Solve Any</span><span class="grad2" id="h1b">Doubt Instantly</span></h1>
+      <div class="hero-illus">
+        <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" width="70" height="88">
+          <defs>
+            <linearGradient id="ig1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6c63ff"/>
+              <stop offset="100%" stop-color="#ff6b9d"/>
+            </linearGradient>
+          </defs>
+          <!-- Floating book -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0;0,-7;0,0" dur="3s" repeatCount="indefinite"/>
+            <rect x="4" y="30" width="28" height="34" rx="3" fill="url(#ig1)" opacity="0.9"/>
+            <rect x="4" y="30" width="4" height="34" rx="2" fill="rgba(0,0,0,0.3)"/>
+            <line x1="12" y1="38" x2="28" y2="38" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="12" y1="43" x2="28" y2="43" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="12" y1="48" x2="24" y2="48" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+            <text x="10" y="60" font-size="10" fill="white" font-weight="bold" opacity="0.9">AI</text>
+          </g>
+          <!-- Floating bulb -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0;0,6;0,0" dur="2.5s" repeatCount="indefinite"/>
+            <circle cx="60" cy="18" r="12" fill="#ffbe0b" opacity="0.9"/>
+            <rect x="55" y="28" width="10" height="5" rx="2" fill="#ffbe0b" opacity="0.7"/>
+            <line x1="60" y1="35" x2="60" y2="40" stroke="#ffbe0b" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+            <line x1="60" y1="2" x2="60" y2="6" stroke="#ffbe0b" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <line x1="72" y1="6" x2="69" y2="9" stroke="#ffbe0b" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <line x1="76" y1="18" x2="72" y2="18" stroke="#ffbe0b" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <line x1="48" y1="6" x2="51" y2="9" stroke="#ffbe0b" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <line x1="44" y1="18" x2="48" y2="18" stroke="#ffbe0b" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <circle cx="55" cy="14" r="3" fill="white" opacity="0.35"/>
+          </g>
+          <!-- Floating math symbols -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0;0,5;0,0" dur="3.5s" repeatCount="indefinite"/>
+            <text x="44" y="68" font-size="13" fill="#00e5ff" font-weight="bold" opacity="0.85">x²</text>
+            <text x="56" y="80" font-size="11" fill="#ff6b9d" font-weight="bold" opacity="0.75">∫</text>
+            <text x="44" y="90" font-size="10" fill="#a09aff" font-weight="bold" opacity="0.7">π</text>
+          </g>
+          <!-- Sparkles -->
+          <circle cx="10" cy="10" r="2" fill="#ffbe0b" opacity="0.7">
+            <animate attributeName="opacity" values="0.7;0;0.7" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="72" cy="55" r="1.5" fill="#00e5ff" opacity="0.8">
+            <animate attributeName="opacity" values="0.8;0;0.8" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="18" cy="75" r="1.5" fill="#ff6b9d" opacity="0.7">
+            <animate attributeName="opacity" values="0.7;0;0.7" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+    </div>
+    <p class="subtitle" id="subtitleText">Type or upload a photo of your question</p>
   </div>
 
   <!-- Class Selector -->
-  <div class="class-row">
+  <div class="section-label-row">CLASS</div>
+  <div class="scroll-row">
     <div class="class-pill" onclick="selectClass(this,'1-10')" id="c1">Class 1-10</div>
     <div class="class-pill active" onclick="selectClass(this,'11-12')" id="c2">Class 11-12</div>
     <div class="class-pill" onclick="selectClass(this,'JEE/NEET')" id="c3">JEE / NEET</div>
     <div class="class-pill" onclick="selectClass(this,'Others')" id="c4">Others</div>
   </div>
+  <div class="swipe-hint-row">swipe for more &nbsp;→</div>
 
   <!-- Subject Pills -->
-  <div class="subjects">
+  <div class="section-label-row">SUBJECT</div>
+  <div class="scroll-row">
     <div class="pill phy active" onclick="selectSubject(this,'Physics')">⚡ Physics</div>
     <div class="pill che" onclick="selectSubject(this,'Chemistry')">🧪 Chemistry</div>
     <div class="pill mat" onclick="selectSubject(this,'Maths')">📐 Maths</div>
     <div class="pill bio" onclick="selectSubject(this,'Biology')">🧬 Biology</div>
     <div class="pill gen" id="othersBtn" onclick="toggleOthersMenu(event)">💡 Others ▾</div>
   </div>
+  <div class="swipe-hint-row">swipe for more &nbsp;→</div>
 
   <!-- Mode Toggle -->
   <div class="mode-wrap">
@@ -1099,9 +1193,7 @@ function toggleOthersMenu(e) {
   const menu = document.getElementById('othersMenu');
   const btn = document.getElementById('othersBtn');
   const rect = btn.getBoundingClientRect();
-  // Position menu just below the button using fixed coords (no scroll issue!)
   menu.style.top = (rect.bottom + 6) + 'px';
-  // Align right edge with screen edge if needed
   const menuWidth = 210;
   let left = rect.left;
   if (left + menuWidth > window.innerWidth - 8) {
@@ -1123,7 +1215,8 @@ function selectOthers(subject) {
 
 // Close others menu when clicking outside
 document.addEventListener('click', () => {
-  document.getElementById('othersMenu')?.classList.remove('open');
+  const menu = document.getElementById('othersMenu');
+  if (menu) menu.classList.remove('open');
 });
 
 function updateSubjectLabel() {
@@ -1760,29 +1853,28 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
       }
       lines.forEach(line => {
         const div = document.createElement('div');
-        if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('★ Final Answer:') || trimmed.startsWith('Final Answer:')) {
           div.className = 'final-answer-box';
-          const ansText = line.replace('★ ', '');
-          // Make sure there is actual answer text
+          const ansText = trimmed.replace('★ ', '');
           const answerText = ansText.replace('Final Answer:', '').trim();
           if (answerText) {
             div.innerHTML = `<span class="fa-text">${ansText}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
           } else {
             div.innerHTML = `<span class="fa-text">${ansText}</span>`;
           }
-        } else if (line.startsWith('★') || line.startsWith('Key Idea:') || line.startsWith('Concept Used:')) {
-          if (line.startsWith('Concept Used:')) {
-            div.className = 'concept-box';
-          } else {
-            div.className = 'key-point';
-          }
-          div.textContent = line;
-        } else if (line.startsWith('Problem:')) {
+        } else if (trimmed.startsWith('Concept Used:')) {
+          div.className = 'concept-box';
+          div.textContent = trimmed;
+        } else if (trimmed.startsWith('★') || trimmed.startsWith('Key Idea:')) {
+          div.className = 'key-point';
+          div.textContent = trimmed;
+        } else if (trimmed.startsWith('Problem:')) {
           div.className = 'problem-box';
-          div.textContent = line;
+          div.textContent = trimmed;
         } else {
           div.textContent = line;
-          div.style.marginBottom = line === '' ? '8px' : '2px';
+          div.style.marginBottom = trimmed === '' ? '8px' : '2px';
         }
         answerBody.appendChild(div);
       });
@@ -2055,6 +2147,13 @@ let practiceClass = 'Class 1-10';
 let practiceSubject = 'Physics';
 let practiceQuestions = [];
 let currentPracticeIdx = 0;
+let practiceLang = 'en';
+
+function setPracticeLang(lang) {
+  practiceLang = lang;
+  document.getElementById('practiceLangEN').classList.toggle('active', lang === 'en');
+  document.getElementById('practiceLangHI').classList.toggle('active', lang === 'hi');
+}
 
 function openPractice() { document.getElementById('practicePage').classList.add('open'); }
 function closePractice() { document.getElementById('practicePage').classList.remove('open'); }
@@ -2124,7 +2223,10 @@ STRICT RULES:
 - Number them: 1. 2. 3. 4. 5.
 - No answers, no hints, no explanations, no preamble
 - Make each question unique and different
-- Questions must match ${cls} syllabus level`
+- Questions must match ${cls} syllabus level
+- ZERO LaTeX. ZERO backslashes. ZERO \\frac, \\sin, \\( \\) or any LaTeX syntax
+- Write math in plain text: use x², x³, √(x), (a)/(b), sin(x), cos(x), π, ∞
+- ${practiceLang === 'hi' ? 'Write questions in simple Hinglish (Hindi + English mix). Use Hindi for explanation words, English for math terms.' : 'Write questions in clear English.'}`
         }, { role: 'user', content: `Give me 5 ${subj} practice questions on ${topic}.` }]
       })
     });
@@ -2234,7 +2336,8 @@ Step 1: [explanation — 1-2 lines]
 Step 2: [explanation — 1-2 lines]
 ★ Final Answer: [conclusion]
 
-RULES: Max 5 steps. No filler. Start directly. ZERO LaTeX. Powers: x², x³. √(x). ∞.`
+RULES: Max 5 steps. No filler. Start directly. ZERO LaTeX. ZERO backslashes. ZERO \\frac \\sin \\( \\). Powers: x², x³. √(x). ∞. Write math in plain text only.
+${practiceLang === 'hi' ? 'Answer in Hinglish (Hindi + English mix). Hindi for explanations, English for math terms.' : 'Answer in clear English.'}`
         }, { role: 'user', content: currentQ }]
       })
     });
@@ -2258,19 +2361,34 @@ RULES: Max 5 steps. No filler. Start directly. ZERO LaTeX. Powers: x², x³. √
     }
     mergedPractice.forEach(line => {
       const div = document.createElement('div');
-      if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
+      const t = line.trim();
+      if (t.startsWith('★ Final Answer:') || t.startsWith('Final Answer:')) {
         div.className = 'final-answer-box';
-        div.innerHTML = `<span class="fa-text">${line.replace('★ ','')}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)">📋</button>`;
-      } else if (line.startsWith('Concept Used:')) {
+        div.innerHTML = `<span class="fa-text">${t.replace('★ ','')}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)">📋</button>`;
+      } else if (t.startsWith('Concept Used:')) {
         div.className = 'concept-box';
-        div.textContent = line;
+        div.textContent = t;
+      } else if (t.startsWith('Problem:')) {
+        div.className = 'problem-box';
+        div.textContent = t;
+      } else if (t.startsWith('★')) {
+        div.className = 'key-point';
+        div.textContent = t;
       } else {
         div.textContent = line;
-        div.style.marginBottom = line === '' ? '10px' : '6px';
+        div.style.marginBottom = t === '' ? '10px' : '6px';
       }
       body.appendChild(div);
     });
     document.getElementById('practiceAnsCard').style.display = 'block';
+    // Auto scroll to answer
+    setTimeout(() => {
+      const page = document.getElementById('practicePage');
+      const card = document.getElementById('practiceAnsCard');
+      const rect = card.getBoundingClientRect();
+      const pageRect = page.getBoundingClientRect();
+      page.scrollTo({ top: page.scrollTop + rect.top - pageRect.top - 80, behavior: 'smooth' });
+    }, 150);
   } catch(e) {
     showToast('❌ Could not get answer');
   } finally {
@@ -2342,6 +2460,10 @@ if ('serviceWorker' in navigator) {
     <div class="practice-header">
       <button class="practice-back" onclick="closePractice()">←</button>
       <div class="practice-title">🎯 Practice Mode</div>
+      <div class="lang-tabs" style="margin-left:auto;">
+        <div class="lang-tab active" id="practiceLangEN" onclick="setPracticeLang('en')">EN</div>
+        <div class="lang-tab" id="practiceLangHI" onclick="setPracticeLang('hi')">हिंदी</div>
+      </div>
     </div>
     <div class="practice-body">
       <div class="practice-label">CLASS</div>
@@ -2407,4 +2529,12 @@ if ('serviceWorker' in navigator) {
 
   <!-- Others dropdown at body level -->
   <div class="others-menu" id="othersMenu">
-    <div class="others-item" onclick="selectOthers('
+    <div class="others-item" onclick="selectOthers('🌍 Social Science')">🌍 Social Science</div>
+    <div class="others-item" onclick="selectOthers('💻 Computer Science')">💻 Computer Science</div>
+    <div class="others-item" onclick="selectOthers('📝 English')">📝 English</div>
+    <div class="others-item" onclick="selectOthers('📊 Economics')">📊 Economics</div>
+    <div class="others-item" onclick="selectOthers('📈 Business Studies')">📈 Business Studies</div>
+    <div class="others-item" onclick="selectOthers('💡 Others')">💡 Others</div>
+  </div>
+</body>
+</html>
