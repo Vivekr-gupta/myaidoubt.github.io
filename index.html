@@ -71,8 +71,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 0 4px;
-  margin-bottom: 4px;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .topbar-logo {
@@ -82,13 +86,15 @@ body {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
-.topbar-actions { display: flex; gap: 10px; align-items: center; }
+.topbar-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
 
 /* Theme toggle */
 .theme-toggle {
-  width: 52px; height: 28px;
+  width: 46px; height: 26px;
   background: var(--toggle-bg);
   border: 1px solid var(--border);
   border-radius: 100px;
@@ -97,21 +103,21 @@ body {
   transition: all 0.3s;
   display: flex;
   align-items: center;
-  padding: 0 4px;
+  padding: 0 3px;
 }
 
 .theme-toggle-ball {
-  width: 20px; height: 20px;
+  width: 18px; height: 18px;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   border-radius: 50%;
   transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
 }
 
-[data-theme="light"] .theme-toggle-ball { transform: translateX(24px); }
+[data-theme="light"] .theme-toggle-ball { transform: translateX(20px); }
 
 /* Lang toggle */
 .lang-tabs {
@@ -124,9 +130,9 @@ body {
 }
 
 .lang-tab {
-  padding: 4px 12px;
+  padding: 4px 8px;
   border-radius: 100px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   color: var(--muted);
@@ -217,17 +223,17 @@ h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-we
 }
 .pill:hover { color: var(--text); }
 .pill.active { color: white; box-shadow: 0 8px 24px rgba(0,0,0,0.25); font-weight: 800; }
-.pill.phy.active { background: linear-gradient(135deg,#0ea5e9,#6c63ff); border-color: transparent; }
-.pill.che.active { background: linear-gradient(135deg,#10b981,#00e5ff); border-color: transparent; }
-.pill.mat.active { background: linear-gradient(135deg,#ff6b35,#ffbe0b); border-color: transparent; }
-.pill.bio.active { background: linear-gradient(135deg,#f59e0b,#ff6b9d); border-color: transparent; }
-.pill.gen.active { background: linear-gradient(135deg,#6c63ff,#ff6b9d); border-color: transparent; }
+.pill.phy.active { background: linear-gradient(135deg,#00b4d8,#0077b6); border-color: transparent; }
+.pill.che.active { background: linear-gradient(135deg,#06d6a0,#048a81); border-color: transparent; }
+.pill.mat.active { background: linear-gradient(135deg,#f72585,#7209b7); border-color: transparent; }
+.pill.bio.active { background: linear-gradient(135deg,#f9c74f,#f3722c); border-color: transparent; }
+.pill.gen.active { background: linear-gradient(135deg,#4cc9f0,#4361ee); border-color: transparent; }
 
 /* Input card */
 .input-card {
   background: var(--card);
   border: 1.5px solid var(--border);
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 0;
   margin-bottom: 12px;
   animation: fadeUp 0.7s 0.2s both;
@@ -277,7 +283,7 @@ textarea {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
   font-size: 17px; font-weight: 500; line-height: 1.75;
-  resize: none; min-height: 110px;
+  resize: none; min-height: 72px;
   letter-spacing: -0.3px;
   padding: 12px 16px 0;
 }
@@ -325,7 +331,8 @@ textarea::placeholder {
 /* Solve button */
 .btn-solve {
   width: 100%; padding: 18px; border-radius: 16px; border: none;
-  background: linear-gradient(135deg,#6c63ff,#ff6b9d); color: white;
+  background: linear-gradient(135deg, #ff2d6b, #8b5cf6);
+  color: white;
   font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700;
   cursor: pointer; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
   animation: fadeUp 0.7s 0.3s both; position: relative; overflow: hidden;
@@ -391,9 +398,9 @@ textarea::placeholder {
 }
 
 .mode-tab.active {
-  background: linear-gradient(135deg, #6c63ff, #ff6b9d);
+  background: linear-gradient(135deg, #f72585, #7209b7);
   color: white;
-  box-shadow: 0 4px 14px rgba(108,99,255,0.35);
+  box-shadow: 0 4px 14px rgba(247,37,133,0.4);
 }
 
 .mode-desc {
@@ -806,9 +813,9 @@ textarea::placeholder {
   <!-- Top Bar -->
   <div class="topbar">
     <div class="topbar-logo">
-      <svg width="170" height="38" viewBox="0 0 200 52" xmlns="http://www.w3.org/2000/svg">
+      <svg width="140" height="34" viewBox="0 0 220 52" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="logoG1" x1="0%" y1="0%" x2="60%" y2="100%">
+          <linearGradient id="logoG1" x1="0%" y1="0%" x2="50%" y2="100%">
             <stop offset="0%" stop-color="#FF2D6B"/>
             <stop offset="100%" stop-color="#FF0080"/>
           </linearGradient>
@@ -816,18 +823,18 @@ textarea::placeholder {
             <stop offset="0%" stop-color="#FF2D6B"/>
             <stop offset="100%" stop-color="#FFD700"/>
           </linearGradient>
-          <linearGradient id="logoYellow" x1="0%" y1="0%" x2="60%" y2="100%">
-            <stop offset="0%" stop-color="#FFD700"/>
+          <linearGradient id="logoYellow" x1="0%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#FFE033"/>
             <stop offset="100%" stop-color="#FF8C00"/>
           </linearGradient>
-          <filter id="lglow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="1.5" result="blur"/>
+          <filter id="lglow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
             <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <polygon points="22,2 7,26 18,26 10,50 34,18 21,18 32,2" fill="url(#logoG1)" filter="url(#lglow)"/>
-        <polygon points="32,8 20,30 29,30 23,50 43,22 32,22 40,8" fill="url(#logoYellow)" opacity="0.95" filter="url(#lglow)"/>
-        <text x="52" y="38" font-family="Impact, Arial Black, sans-serif" font-size="27" fill="url(#logoG2)" letter-spacing="0.5">MyAIDoubt</text>
+        <polygon points="24,2 6,28 19,28 10,52 36,20 22,20 34,2" fill="url(#logoG1)" filter="url(#lglow)"/>
+        <polygon points="34,8 20,32 31,32 24,52 46,24 34,24 43,8" fill="url(#logoYellow)" opacity="0.95" filter="url(#lglow)"/>
+        <text x="56" y="38" font-family="Outfit, Impact, Arial Black, sans-serif" font-size="28" font-weight="900" fill="url(#logoG2)" letter-spacing="0">MyAIDoubt</text>
       </svg>
     </div>
     <div class="topbar-actions">
@@ -915,9 +922,9 @@ textarea::placeholder {
   <!-- Subject Pills -->
   <div class="section-label-row">SUBJECT</div>
   <div class="scroll-row">
-    <div class="pill phy active" onclick="selectSubject(this,'Physics')">⚡ Physics</div>
+    <div class="pill phy active" onclick="selectSubject(this,'Physics')">⚛️ Physics</div>
     <div class="pill che" onclick="selectSubject(this,'Chemistry')">🧪 Chemistry</div>
-    <div class="pill mat" onclick="selectSubject(this,'Maths')">📐 Maths</div>
+    <div class="pill mat" onclick="selectSubject(this,'Maths')">🌀 Maths</div>
     <div class="pill bio" onclick="selectSubject(this,'Biology')">🧬 Biology</div>
     <div class="pill gen" id="othersBtn" onclick="toggleOthersMenu(event)">💡 Others ▾</div>
   </div>
@@ -950,8 +957,6 @@ textarea::placeholder {
       <span class="example-hint">Solve x² + 5x + 6 = 0</span>
       <span class="example-hint-sep">•</span>
       <span class="example-hint">Explain photosynthesis</span>
-      <span class="example-hint-sep">•</span>
-      <span class="example-hint">What is rotational motion</span>
     </div>
     <div class="input-footer">
       <span id="charCount">0 / 500</span>
@@ -996,7 +1001,7 @@ textarea::placeholder {
 
   <!-- Solve Button -->
   <button class="btn-solve" id="solveBtn" onclick="solveDoubt()">
-    <span id="solveBtnText">⚡ Solve My Doubt</span>
+    <span id="solveBtnText">Get Solution 🚀</span>
   </button>
 
   <!-- Practice Mode Button -->
@@ -1101,7 +1106,7 @@ const T = {
     placeholder: 'Type your question here...',
     camera: 'Take Photo', cameraS: 'Use camera',
     gallery: 'Upload Photo', galleryS: 'From gallery',
-    solveBtn: '⚡ Solve My Doubt',
+    solveBtn: 'Get Solution 🚀',
     loading: 'Analyzing your question...',
     answerTitle: 'Answer',
     share: 'Share',
@@ -1791,17 +1796,21 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
       function revealNext() {
         if (revealed >= lines.length) return;
         const line = lines[revealed];
+        const trimmed = line.trim();
         const div = document.createElement('div');
-        if (line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:')) {
+        if (trimmed.startsWith('★ Final Answer:') || trimmed.startsWith('Final Answer:')) {
           div.className = 'final-answer-box';
-          const ansText = line.replace('★ ', '');
+          const ansText = trimmed.replace('★ ', '');
           div.innerHTML = `<span class="fa-text">${ansText}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
-        } else if (line.startsWith('Concept Used:')) {
+        } else if (trimmed.startsWith('Concept Used:')) {
           div.className = 'concept-box';
-          div.textContent = line;
-        } else if (line.startsWith('Problem:')) {
+          div.textContent = trimmed;
+        } else if (trimmed.startsWith('Problem:')) {
           div.className = 'problem-box';
-          div.textContent = line;
+          div.textContent = trimmed;
+        } else if (trimmed.startsWith('★')) {
+          div.className = 'key-point';
+          div.textContent = trimmed;
         } else {
           div.textContent = line;
           div.style.marginBottom = '4px';
@@ -2475,8 +2484,8 @@ if ('serviceWorker' in navigator) {
       </div>
       <div class="practice-label">SUBJECT</div>
       <div class="practice-diff-row" id="practiceSubjectRow">
-        <div class="diff-pill active" onclick="selectPracticeSubject(this,'Maths')">📐 Maths</div>
-        <div class="diff-pill" onclick="selectPracticeSubject(this,'Physics')">⚡ Physics</div>
+        <div class="diff-pill active" onclick="selectPracticeSubject(this,'Maths')">🌀 Maths</div>
+        <div class="diff-pill" onclick="selectPracticeSubject(this,'Physics')">⚛️ Physics</div>
         <div class="diff-pill" onclick="selectPracticeSubject(this,'Chemistry')">🧪 Chemistry</div>
         <div class="diff-pill" onclick="selectPracticeSubject(this,'Biology')">🧬 Biology</div>
         <div class="diff-pill" onclick="selectPracticeSubject(this,'English')">📝 English</div>
