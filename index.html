@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Doubt Solver</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 /* ===== THEME VARIABLES ===== */
 [data-theme="dark"] {
@@ -64,7 +64,7 @@ body {
 [data-theme="light"] .blob { opacity: 0.3; }
 @keyframes blobMove { 0% { transform: translate(0,0); } 100% { transform: translate(30px,30px); } }
 
-.container { max-width: 480px; margin: 0 auto; padding: 4px 16px 80px; position: relative; z-index: 1; }
+.container { max-width: 480px; margin: 0 auto; padding: 10px 16px 80px; position: relative; z-index: 1; }
 
 /* Top bar */
 .topbar {
@@ -166,10 +166,10 @@ body {
 .badge-dot { width: 6px; height: 6px; background: #6c63ff; border-radius: 50%; animation: pulse 1.5s infinite; box-shadow: 0 0 6px #6c63ff; }
 @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.5; } }
 
-h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-weight: 900; line-height: 1.0; letter-spacing: -2px; margin-bottom: 0; width: 100%; }
+h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-weight: 900; line-height: 1.0; letter-spacing: -2px; margin-bottom: 0; margin-top: -2px; width: 100%; }
 .grad1 { background: linear-gradient(135deg,#6c63ff,#a09aff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; }
 .grad2 { background: linear-gradient(135deg,#ff6b9d,#ffbe0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; padding-left: 44px; }
-.subtitle { color: var(--muted); font-size: 13px; line-height: 1.4; text-align: center; margin-top: 2px; margin-bottom: 0; }
+.subtitle { color: var(--muted); font-size: 13px; line-height: 1.4; text-align: center; margin-top: 1px; margin-bottom: 0; }
 
 /* Scroll rows */
 .scroll-row {
@@ -183,7 +183,7 @@ h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-we
 .section-label-row {
   font-size: 10px; font-weight: 700; letter-spacing: 2px;
   text-transform: uppercase; color: var(--muted);
-  margin-bottom: 4px; margin-top: 4px;
+  margin-bottom: 3px; margin-top: 3px;
 }
 
 /* Swipe hint */
@@ -366,7 +366,7 @@ textarea::placeholder {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  margin: 4px 0 8px;
+  margin: 2px 0 6px;
   animation: fadeUp 0.7s 0.18s both;
 }
 
@@ -857,15 +857,17 @@ canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:non
   100% { opacity:1; }
 }
 
-/* Brand text - pill border + cool typewriter animation */
+/* Brand text - pill border + reveal animation */
 .brand {
   opacity:0;
-  border: 2px solid rgba(122,107,255,0.6);
+  border: 2.5px solid rgba(255,107,0,0.5);
   border-radius: 50px;
-  padding: 6px 16px;
-  background: rgba(122,107,255,0.05);
-  max-width: calc(100vw - 40px);
+  padding: 8px 20px;
+  background: rgba(255,20,100,0.05);
+  max-width: calc(100vw - 24px);
   box-sizing: border-box;
+  width: calc(100vw - 24px);
+  text-align: center;
 }
 .brand.show {
   animation: brandReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
@@ -944,23 +946,19 @@ canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:non
 
     <!-- MyAIDoubt — all together, MyAI pink, Doubt yellow -->
     <div class="brand" id="brand">
-      <svg class="brand-svg" width="100%" height="54" viewBox="0 0 320 54" style="display:block;">
+      <svg class="brand-svg" width="100%" height="62" viewBox="0 0 320 62" style="display:block;">
         <defs>
-          <linearGradient id="gMyAI" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#7A6BFF"/>
-            <stop offset="100%" stop-color="#7A6BFF"/>
-          </linearGradient>
-          <linearGradient id="gDoubt" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#FFA24A"/>
-            <stop offset="100%" stop-color="#FFA24A"/>
+          <linearGradient id="gBrand" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#FF1464"/>
+            <stop offset="50%" stop-color="#FF6B00"/>
+            <stop offset="100%" stop-color="#FFD700"/>
           </linearGradient>
         </defs>
-        <text x="160" y="44" text-anchor="middle"
-          font-family="Outfit, sans-serif"
-          font-size="44" font-weight="500"
-          textLength="308" lengthAdjust="spacing">
-          <tspan fill="url(#gMyAI)">MyAI</tspan><tspan fill="url(#gDoubt)">Doubt</tspan>
-        </text>
+        <text x="160" y="52" text-anchor="middle"
+          font-family="'Bebas Neue', sans-serif"
+          font-size="58" font-weight="400"
+          fill="url(#gBrand)"
+          textLength="300" lengthAdjust="spacing">MyAIDoubt</text>
       </svg>
     </div>
 
@@ -1044,35 +1042,43 @@ function showLogo() {
   // Draw circle
   const svg = document.getElementById('circleSvg');
   const path = document.getElementById('circlePath');
-  svg.classList.add('show');
-  setTimeout(() => path.classList.add('animate'), 20);
+  if (svg) svg.classList.add('show');
+  if (path) setTimeout(() => path.classList.add('animate'), 20);
 
-  // Logo appears instantly (no animation)
+  // Logo appears
   setTimeout(() => {
-    document.getElementById('logoImg').classList.add('show');
+    const l = document.getElementById('logoImg');
+    if (l) l.classList.add('show');
   }, 200);
 
   // Brand text
   setTimeout(() => {
-    document.getElementById('brand').classList.add('show');
+    const b = document.getElementById('brand');
+    if (b) b.classList.add('show');
   }, 900);
 
   // Tags
   setTimeout(() => {
-    document.getElementById('tags').classList.add('show');
+    const t = document.getElementById('tags');
+    if (t) t.classList.add('show');
   }, 1400);
 
   // Fade out
   setTimeout(() => {
-    document.getElementById('splashScreen').classList.add('hide');
+    const s = document.getElementById('splashScreen');
+    if (s) s.classList.add('hide');
     setTimeout(() => {
-      const s = document.getElementById('splashScreen');
-      if (s) s.remove();
+      const s2 = document.getElementById('splashScreen');
+      if (s2) s2.remove();
     }, 700);
   }, 3000);
 }
 
-setTimeout(() => requestAnimationFrame(draw), 200);
+setTimeout(() => {
+  if (document.getElementById('splashScreen')) {
+    requestAnimationFrame(draw);
+  }
+}, 200);
 </script>
 
 <script>
@@ -1113,8 +1119,8 @@ if (!sessionStorage.getItem('splashShown')) {
   </div>
 
   <!-- Header -->
-  <div class="header" style="padding:2px 0 4px;">
-    <div style="text-align:center;margin-bottom:2px;">
+  <div class="header" style="padding:0;">
+    <div style="text-align:center;margin-bottom:0;margin-top:8px;">
       <div class="badge" style="display:inline-flex;"><div class="badge-dot"></div><span id="badgeText">Powered by AI</span></div>
     </div>
     <div class="hero-row">
@@ -1213,7 +1219,7 @@ if (!sessionStorage.getItem('splashShown')) {
       <div class="input-label" id="inputLabel">Your Doubt</div>
     </div>
     <div style="position:relative">
-      <textarea id="doubtInput" placeholder="Type your question here..." rows="4" oninput="updateCount(); toggleClearBtn()"></textarea>
+      <textarea id="doubtInput" placeholder="Type your question here..." rows="4" oninput="updateCount(); toggleClearBtn()" onfocus="setTimeout(()=>{ this.scrollIntoView({behavior:'smooth', block:'center'}); }, 300)"></textarea>
       <button id="clearInputBtn" onclick="clearInput()" style="display:none;position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;width:22px;height:22px;color:var(--muted);font-size:13px;cursor:pointer;line-height:1;padding:0;">✕</button>
     </div>
     <div class="example-hints">
