@@ -150,14 +150,13 @@ body {
 .hero-illus { flex-shrink: 0; animation: illusFloat 3s ease-in-out infinite; }
 @keyframes illusFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
-
 @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 
 .badge {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3);
-  border-radius: 100px; padding: 5px 14px; font-size: 11px; font-weight: 700;
-  color: #a09aff; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;
+  border-radius: 100px; padding: 4px 12px; font-size: 11px; font-weight: 700;
+  color: #a09aff; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px;
   animation: badgeGlow 2.5s ease-in-out infinite;
 }
 @keyframes badgeGlow {
@@ -167,10 +166,10 @@ body {
 .badge-dot { width: 6px; height: 6px; background: #6c63ff; border-radius: 50%; animation: pulse 1.5s infinite; box-shadow: 0 0 6px #6c63ff; }
 @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.5; } }
 
-h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 6px; width: 100%; }
+h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-weight: 900; line-height: 1.05; letter-spacing: -2px; margin-bottom: 2px; width: 100%; }
 .grad1 { background: linear-gradient(135deg,#6c63ff,#a09aff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; }
 .grad2 { background: linear-gradient(135deg,#ff6b9d,#ffbe0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; padding-left: 44px; }
-.subtitle { color: var(--muted); font-size: 13px; line-height: 1.5; text-align: center; margin-top: 4px; }
+.subtitle { color: var(--muted); font-size: 13px; line-height: 1.4; text-align: center; margin-top: 2px; margin-bottom: 0; }
 
 /* Scroll rows */
 .scroll-row {
@@ -184,13 +183,13 @@ h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px,7vw,44px); font-we
 .section-label-row {
   font-size: 10px; font-weight: 700; letter-spacing: 2px;
   text-transform: uppercase; color: var(--muted);
-  margin-bottom: 6px; margin-top: 8px;
+  margin-bottom: 5px; margin-top: 6px;
 }
 
 /* Swipe hint */
 .swipe-hint-row {
   font-size: 10px; color: var(--muted); text-align: right;
-  margin-top: 4px; margin-bottom: 2px; font-weight: 600;
+  margin-top: 2px; margin-bottom: 0; font-weight: 600;
   opacity: 0.5; animation: swipeAnim 2s ease-in-out infinite;
 }
 @keyframes swipeAnim {
@@ -366,8 +365,8 @@ textarea::placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  margin: 8px 0 12px;
+  gap: 4px;
+  margin: 6px 0 8px;
   animation: fadeUp 0.7s 0.18s both;
 }
 
@@ -794,6 +793,9 @@ textarea::placeholder {
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+[data-theme="dark"] .logo-img { mix-blend-mode: screen !important; filter: drop-shadow(0 0 4px rgba(255,107,157,0.5)) !important; }
+[data-theme="light"] .logo-img { mix-blend-mode: multiply !important; }
 </style>
 <meta name="theme-color" content="#060612">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -812,30 +814,11 @@ textarea::placeholder {
 
   <!-- Top Bar -->
   <div class="topbar">
-    <div class="topbar-logo">
-      <svg width="140" height="34" viewBox="0 0 220 52" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="logoG1" x1="0%" y1="0%" x2="50%" y2="100%">
-            <stop offset="0%" stop-color="#FF2D6B"/>
-            <stop offset="100%" stop-color="#FF0080"/>
-          </linearGradient>
-          <linearGradient id="logoG2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#FF2D6B"/>
-            <stop offset="100%" stop-color="#FFD700"/>
-          </linearGradient>
-          <linearGradient id="logoYellow" x1="0%" y1="0%" x2="50%" y2="100%">
-            <stop offset="0%" stop-color="#FFE033"/>
-            <stop offset="100%" stop-color="#FF8C00"/>
-          </linearGradient>
-          <filter id="lglow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="2" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-        <polygon points="24,2 6,28 19,28 10,52 36,20 22,20 34,2" fill="url(#logoG1)" filter="url(#lglow)"/>
-        <polygon points="34,8 20,32 31,32 24,52 46,24 34,24 43,8" fill="url(#logoYellow)" opacity="0.95" filter="url(#lglow)"/>
-        <text x="56" y="38" font-family="Outfit, Impact, Arial Black, sans-serif" font-size="28" font-weight="900" fill="url(#logoG2)" letter-spacing="0">MyAIDoubt</text>
-      </svg>
+        <div class="topbar-logo">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <img src="data:image/png;base64,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" style="width:32px;height:32px;object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 0 4px rgba(255,107,157,0.4));" alt="MyAIDoubt logo" class="logo-img">
+        <span style="font-family:Outfit,Impact,sans-serif;font-size:20px;font-weight:900;background:linear-gradient(90deg,#FF1464,#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">MyAIDoubt</span>
+      </div>
     </div>
     <div class="topbar-actions">
       <div class="lang-tabs">
@@ -849,7 +832,7 @@ textarea::placeholder {
   </div>
 
   <!-- Header -->
-  <div class="header">
+  <div class="header" style="padding:2px 0 4px;">
     <div style="text-align:center;margin-bottom:2px;">
       <div class="badge" style="display:inline-flex;"><div class="badge-dot"></div><span id="badgeText">Powered by AI</span></div>
     </div>
