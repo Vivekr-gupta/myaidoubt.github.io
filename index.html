@@ -919,6 +919,13 @@ canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:non
 <meta name="apple-mobile-web-app-title" content="MyAIDoubt">
 <meta name="description" content="Free AI Doubt Solver for students">
 <link rel="manifest" href="data:application/json,{%22name%22:%22MyAIDoubt%22,%22short_name%22:%22MyAIDoubt%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23060612%22,%22theme_color%22:%22%23060612%22,%22icons%22:[{%22src%22:%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADfElEQVR42u3dwW3CUBAEUJ8oIB2ln%2FSbciANELA%2FwuzMO8zZUnbeiCQItsvl6yrSms0PQQAQAUAEABEARAAQAUAEgPpcv3%2FGxL0AqAXgVgAovwAAgACg%2FAIAAAJANAB3AsD6CwDWXwCw%2FgKA9RcArL8AYP0FAOsvAFh%2FAcD6CwDWXwAAQABQfgHg8wH8bm8LAMoPAAAAKD8Ayg8AAAAAAIDyKz8AAAAAgPIHAvB%2FAACsPwDKDwAAACg%2FAAAAAIDyn%2FaGNwAAsP7KD4D1BwAAAAAAQPmVHwAAAAAgtfzvBKD0AFh%2F6QBg%2FQEAQPmVHwAAACgDMOUzfgAAwPorPwDWHwAAAFB%2BAJQfAAAAAAAA5Vd%2BAAAAAICc8gMAgPVXfgCsPwAAAAAAALkAlB8A6w8AANbfWx8AsP4AAGD9AQBA%2BZUfAAAAAKCg%2FAAAYP2VHwDrDwAAAAAAQB4A5QfA%2BgMAgPVXfgCsPwAAdK8%2FAABYf%2BUHwPoDAEDZ%2BgMAQM17%2Fs%2F%2BsutXogVA%2BaMBKDsAWQCsfzYA5bf%2BAABwagAAQPkBUP42AF4CAQAAAMqv%2FAAAUATAX4GUHwAAAFB%2BAJS%2FCIB%2FhAFg%2FQFQfusPAABFALwXCADrD4DyW38AACgCoPhB3xFW9xIOAAAAUH4AlF%2F5AQAAAAA6ACg%2FANZf%2BQEAAAAAvPxRfgAqyr%2FyWaPuBMBoAKsftutOAFh%2FAaBt%2Fd0IgNEAVr9rwI0AsP4CQNv6uw8AowF46QOA8lt%2FAAAAAIAiAMoPgPIfBOA2AAAgACi%2FADAIwN1nKT8AAAAAgPIrPwB5AP59lvIDkAxgtfwAAGD9BYC09X8GgHsAMBbAavkBAMD6CwCJ6%2F8IgFsAUFt%2BAACw%2FgLARADKD4DyAwBAG4Bdz1J%2BAFoBKD8A1h8AAFIA7H6W8gPQCkD5AbD%2BAACQAODQs5QfAOVXfgAAUEIAZgJQfgCUfwGA8gEAgAAwDYDyA6D8CwCUDgAABIBpAJQfAOVfAKBsAIwE8JJnAQCA9RcArL8AMAOA8gNg%2FQUA6y8AFAFQCgCsvwBg%2FQWAIgDKAIDyCwAACADKLwDkA1AAAUAAUH4BoAiAw0stAEeXGgDWXwBQfgFA%2BaUMgPUXAJRfGgEovwAAgLQDcGCpA6D8Ug%2FAYQUAkTYAyi9%2BCRYBQAQAEQBEABABQAQAEQBEABD5yw0lo5t2KYcbTwAAAABJRU5ErkJggg%3D%3D%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22}]}">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
 <body>
 
@@ -1965,8 +1972,8 @@ RULES:
 - Max 5 steps
 - No filler text, no intro, no outro
 - Each step label on its own line, content on next line
-ZERO LaTeX. ZERO dollar signs. ZERO backslashes.
-Powers: use x², x³. Square root: √(x). Infinity: ∞.`
+ZERO filler text. Use LaTeX for math: $\frac{a}{b}$, $\sqrt{x}$, $x^{2}$, $\infty$.
+Powers: x^{2}. Square root: \sqrt{x}. Wrap all math in $...$`
 
       : isFlash
       ? `You are an expert tutor for all subjects. ${langInstruction}
@@ -1979,8 +1986,7 @@ ${(selectedSubject === 'Maths' || selectedSubject === 'Physics') ? `MATHS/PHYSIC
 - Example: "★ Final Answer: x = -2, -3" or "★ Final Answer: 5"` 
 : `Give a direct, concise answer in 2-4 lines maximum.
 No long paragraphs. Key point only. No intro.`}
-ZERO LaTeX. ZERO dollar signs. ZERO backslashes. ZERO {braces}.
-Powers: use x², x³. Square root: √(x). Infinity: ∞. Trig: sin, cos, tan.`
+Use LaTeX for math: $\frac{a}{b}$, $\sqrt{x}$, $x^{2}$. Wrap all math in $...$.`
 
       : `You are an expert tutor for all subjects, helping ${selectedClass} students in India. ${langInstruction}
 ${ownerInstruction}
@@ -2001,7 +2007,7 @@ MIRROR NOTATION RULE (very important):
 Look at the symbols, notation and format used in the student's question.
 Use the EXACT same symbols and notation style in your answer.
 Example: if question uses x^2 → use x², if question uses log_2 → use log₂, if question uses (-∞,-2) → keep that format exactly.
-Never introduce new symbol styles not present in the question.
+EXCEPTION: Fractions — always write as \frac{a}{b} regardless of how student wrote it. Never write a/b for fractions.
 
 SMART DETECTION RULE (do this first):
 Look at the question. Decide which type it is:
@@ -2037,14 +2043,16 @@ CONSISTENCY RULES (always follow):
 - Keep same answer length every time for same type of question
 
 MATH FORMAT RULES:
-- ZERO LaTeX. ZERO backslashes. ZERO {braces}. ZERO dollar signs.
-- Powers: x² x³ x⁻¹ — use actual superscript characters
-- Square root: √x or √(expression) — never write sqrt
-- Infinity: ∞ — never write "infinity"
-- Fractions: write as (a)/(b)
-- Trig: sin, cos, tan, log in full
-- Keep full equation on ONE line — never break mid-expression
-- Subscripts: x₁ x₂ log₂ — use actual subscript characters
+- Use LaTeX for ALL math expressions
+- Fractions: \frac{a}{b} — always use this, never write a/b
+- Powers: x^{2} x^{3} x^{-1}
+- Square root: \sqrt{x}
+- Infinity: \infty
+- Subscripts: x_{1} x_{2} \log_{2}
+- Trig: \sin, \cos, \tan, \log
+- Wrap ALL math in $...$ for inline or $$...$$ for display
+- Example: The answer is $\frac{5}{6}$ or $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+- Keep equations readable — one per line when possible
 
 FINAL ANSWER RULE:
 - Always end with: ★ Final Answer: [result]
@@ -2206,6 +2214,8 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
       }
     }
     answerCard.style.display = 'block';
+    // Render LaTeX math with MathJax
+    if (window.MathJax) MathJax.typesetPromise([answerCard]).catch(()=>{});
     const historyLabel = doubt || ('📷 Photo ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
     addToHistory(historyLabel);
     setTimeout(() => {
