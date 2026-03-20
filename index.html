@@ -1647,6 +1647,40 @@ function applyCrop() {
   document.getElementById('cropModal').classList.remove('open');
   closeCropListeners();
   showToast('✅ Photo cropped!');
+  detectQuestionFromPhoto();
+}
+
+async function detectQuestionFromPhoto() {
+  if (!photoBase64) return;
+  const detectedBox = document.getElementById('detectedBox');
+  const detectedText = document.getElementById('detectedText');
+  detectedText.textContent = '🔍 Reading question...';
+  detectedBox.style.display = 'block';
+  try {
+    const resp = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: `data:${photoMediaType};base64,${photoBase64}` } },
+            { type: 'text', text: 'Read and transcribe ALL text visible in this image exactly as written. Include every word, number, symbol.' }
+          ]
+        }],
+        _detectOnly: true
+      })
+    });
+    const data = await resp.json();
+    const extracted = data.choices?.[0]?.message?.content || '';
+    if (extracted && extracted.length > 5) {
+      detectedText.textContent = extracted.trim();
+    } else {
+      detectedText.textContent = 'Could not read — tap Edit to type manually';
+    }
+  } catch(e) {
+    detectedText.textContent = 'Could not read — tap Edit to type manually';
+  }
 }
 
 function skipCrop() {
@@ -2019,7 +2053,7 @@ FINAL ANSWER RULE:
 VERIFICATION (silent):
 After solving, verify answer mentally. If wrong, correct silently. Never show verification steps.`;
 
-    const userMsg = doubt || 'Solve the question in this image completely.';
+    const userMsg = doubt || '';
     let messages;
 
     if (photoBase64) {
@@ -2027,7 +2061,7 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
         { role: 'system', content: systemPrompt },
         { role: 'user', content: [
           { type: 'image_url', image_url: { url: `data:${photoMediaType};base64,${photoBase64}` } },
-          { type: 'text', text: userMsg }
+          { type: 'text', text: userMsg || 'Solve this question step by step.' }
         ]}
       ];
     } else {
@@ -2037,7 +2071,8 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
       ];
     }
 
-    const model = photoBase64 ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'llama-3.3-70b-versatile';
+    // Model is now decided by the worker (2-step vision pipeline)
+    const model = 'llama-3.3-70b-versatile';
 
     const response = await fetch(WORKER_URL, {
       method: 'POST',
