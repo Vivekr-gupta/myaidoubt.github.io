@@ -195,8 +195,8 @@ export default {
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.GROQ_API_KEY}` },
           body: JSON.stringify({
             model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-            messages: [{ role: 'user', content: [...imageItems, { type: 'text', text: 'Read and transcribe ALL text visible in this image exactly as written.' }] }],
-            max_tokens: 512, temperature: 0.1
+            messages: [{ role: 'user', content: [...imageItems, { type: 'text', text: 'ONLY copy the question text from this image word by word. Do NOT solve, explain, or add anything. Just output the exact question as written.' }] }],
+            max_tokens: 300, temperature: 0
           })
         });
         const detectData = await detectResp.json();
@@ -210,14 +210,14 @@ export default {
         const imageItems = allContent.filter(c => c.type === 'image_url');
         const textItems = allContent.filter(c => c.type === 'text');
 
-        // Step 1: Scout reads image
+        // Step 1: Scout reads image — strict transcription only
         const extractResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.GROQ_API_KEY}` },
           body: JSON.stringify({
             model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-            messages: [{ role: 'user', content: [...imageItems, { type: 'text', text: 'Read and write out ALL text, numbers, math expressions visible in the image.' }] }],
-            max_tokens: 1024, temperature: 0.1
+            messages: [{ role: 'user', content: [...imageItems, { type: 'text', text: 'Copy ALL text, numbers, and math symbols from this image EXACTLY as written. No solving. No explaining. No extra words. Just copy the text.' }] }],
+            max_tokens: 512, temperature: 0
           })
         });
         const extractData = await extractResp.json();
