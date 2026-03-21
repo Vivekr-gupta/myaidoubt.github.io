@@ -1983,7 +1983,30 @@ ${pad(den)}
   });
 }
 
-// Safe Calculator — evaluates AI-provided CALC expression using real JS math
+// Extract the last calculable math expression from solution lines
+function extractCalcExpr(solutionLines) {
+  if (!solutionLines || !solutionLines.length) return null;
+  for (let i = solutionLines.length - 1; i >= 0; i--) {
+    const line = solutionLines[i].replace(/^[→⇒\s]+/, '').trim();
+    const eqMatch = line.match(/=\s*([\d\s\.\+\-\*\/\(\)\^×÷πΠ√\.]+)$/);
+    if (eqMatch) {
+      let expr = eqMatch[1].trim()
+        .replace(/×/g, '*').replace(/÷/g, '/')
+        .replace(/\^/g, '**')
+        .replace(/π|Π/g, 'Math.PI')
+        .replace(/√\(([^)]+)\)/g, 'Math.sqrt($1)')
+        .replace(/√(\d+)/g, 'Math.sqrt($1)')
+        .trim();
+      // Only use if it's purely numeric — no letters/variables
+      if (expr.length > 1 && !/[a-zA-Z]/.test(expr.replace(/Math\.(PI|sqrt|abs|pow)/g, '')) && /[\+\-\*\/]/.test(expr)) {
+        return expr;
+      }
+    }
+  }
+  return null;
+}
+
+
 function safeCalc(expr) {
   if (!expr) return null;
   try {
@@ -2255,7 +2278,7 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
     const response = await fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages, max_tokens: 2048, temperature: (selectedSubject === 'Maths' || selectedSubject === 'Physics') ? 0 : 0.5 })
+      body: JSON.stringify({ model, messages, max_tokens: 1024, temperature: (selectedSubject === 'Maths' || selectedSubject === 'Physics') ? 0 : 0.5 })
     });
 
     const data = await response.json();
@@ -2297,8 +2320,9 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
       });
 
       // 🔢 CALCULATOR OVERRIDE
-      if (sections.calcExpr) {
-        const calcResult = safeCalc(sections.calcExpr);
+      const calcExprL = sections.calcExpr || extractCalcExpr(sections.solution);
+      if (calcExprL) {
+        const calcResult = safeCalc(calcExprL);
         if (calcResult !== null) {
           const unitMatch = sections.finalAnswer.match(/[a-zA-Z°²³/%\s]+$/);
           const units = unitMatch ? unitMatch[0].trim() : '';
@@ -2416,8 +2440,9 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
         if (t.startsWith('CALC:')) { flashCalc = t.replace('CALC:','').trim(); }
       }
       // Calculator override for flash mode
-      if (flashCalc) {
-        const calcResult = safeCalc(flashCalc);
+      const flashCalcExpr = flashCalc || extractCalcExpr(answer.split('\n'));
+      if (flashCalcExpr) {
+        const calcResult = safeCalc(flashCalcExpr);
         if (calcResult !== null) {
           const unitMatch = flashAnswer.match(/[a-zA-Z°²³/%\s]+$/);
           const units = unitMatch ? unitMatch[0].trim() : '';
@@ -2445,6 +2470,10 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
       lines.forEach(line => {
         const t = line.trim();
         if (t.startsWith('CALC:')) { sections.calcExpr = t.replace('CALC:','').trim(); }
+        if (t.startsWith('CALC_RESULT:')) {
+          const val = t.replace('CALC_RESULT:','').trim();
+          if (val && !isNaN(parseFloat(val))) sections.calcResult = parseFloat(val);
+        }
       });
 
       // Second pass — parse all other sections
@@ -2455,24 +2484,35 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
         else if (t.startsWith('★ Final Answer:') || t.startsWith('Final Answer:')) {
           sections.finalAnswer = t.replace('★ Final Answer:','').replace('Final Answer:','').trim();
         }
-        else if (t.startsWith('CALC:')) { /* already parsed */ }
+        else if (t.startsWith('CALC:') || t.startsWith('CALC_RESULT:')) { /* already parsed */ }
         else if (t === 'Solution:') { currentSection = 'solution'; }
         else if (t === 'Explanation:') { currentSection = 'explanation'; }
-        else if (currentSection === 'solution' && t) { sections.solution.push(t); }
+        else if (currentSection === 'solution' && t) {
+          // Filter out code blocks and code results from Gemini
+          if (!t.startsWith('Code:') && !t.startsWith('Result:') && !t.startsWith('```')) {
+            sections.solution.push(t);
+          }
+        }
         else if (currentSection === 'explanation' && t) { sections.explanation += t + ' '; }
-        else if (!currentSection && t && !t.startsWith('Problem:') && !t.startsWith('Concept Used:') && !t.startsWith('★') && !t.startsWith('Step ') && !t.startsWith('CALC:')) {
+        else if (!currentSection && t && !t.startsWith('Problem:') && !t.startsWith('Concept Used:') && !t.startsWith('★') && !t.startsWith('Step ') && !t.startsWith('CALC:') && !t.startsWith('Code:') && !t.startsWith('Result:')) {
           sections.solution.push(t);
         }
       });
 
-      // 🔢 CALCULATOR OVERRIDE — replace AI's answer with real computed result
-      if (sections.calcExpr) {
-        const calcResult = safeCalc(sections.calcExpr);
-        if (calcResult !== null) {
-          // Preserve units/text after the number in finalAnswer
-          const unitMatch = sections.finalAnswer.match(/[a-zA-Z°²³/%\s]+$/);
-          const units = unitMatch ? unitMatch[0].trim() : '';
-          sections.finalAnswer = calcResult + (units ? ' ' + units : '');
+      // 🔢 CALCULATOR OVERRIDE — use Gemini's Python result if available
+      if (sections.calcResult !== null) {
+        const unitMatch = sections.finalAnswer.match(/[a-zA-Z°²³/%\s]+$/);
+        const units = unitMatch ? unitMatch[0].trim() : '';
+        sections.finalAnswer = sections.calcResult + (units ? ' ' + units : '');
+      } else {
+        const calcExpr = sections.calcExpr || extractCalcExpr(sections.solution);
+        if (calcExpr) {
+          const calcResult = safeCalc(calcExpr);
+          if (calcResult !== null) {
+            const unitMatch = sections.finalAnswer.match(/[a-zA-Z°²³/%\s]+$/);
+            const units = unitMatch ? unitMatch[0].trim() : '';
+            sections.finalAnswer = calcResult + (units ? ' ' + units : '');
+          }
         }
       }
 
