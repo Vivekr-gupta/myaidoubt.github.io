@@ -195,8 +195,8 @@ export default {
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.GROQ_API_KEY}` },
           body: JSON.stringify({
             model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-            messages: [{ role: 'user', content: [...imageItems, { type: 'text', text: 'ONLY copy the question text from this image word by word. Do NOT solve, explain, or add anything. Just output the exact question as written.' }] }],
-            max_tokens: 300, temperature: 0
+            messages: [{ role: 'user', content: [...imageItems, { type: 'text', text: 'Copy ONLY the question text from this image exactly as written. Do NOT solve, explain, summarize or add anything extra. Just output the exact question text.' }] }],
+            max_tokens: 600, temperature: 0
           })
         });
         const detectData = await detectResp.json();

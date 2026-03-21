@@ -1801,7 +1801,7 @@ async function detectQuestionFromPhoto() {
           role: 'user',
           content: [
             { type: 'image_url', image_url: { url: `data:${photoMediaType};base64,${photoBase64}` } },
-            { type: 'text', text: 'Read and transcribe ALL text visible in this image exactly as written. Include every word, number, symbol.' }
+            { type: 'text', text: 'Copy ONLY the question text from this image exactly as written. Do NOT solve, explain, summarize or add anything extra. Just output the exact question text.' }
           ]
         }],
         _detectOnly: true
@@ -2082,7 +2082,7 @@ function cleanAnswer(text) {
     // Clean sympy/Python output artifacts
     .replace(/\boo\b/g,'∞')
     .replace(/`([^`]*)`/g,'$1')
-    .replace(/>=/g,'≥').replace(/<=/g,'≤')
+    .replace(/>=/g,'\u2265').replace(/<=/g,'\u2264')
     .trim();
 }
 
@@ -2251,8 +2251,8 @@ MATH FORMAT RULES:
 - Keep full equation on ONE line — never break mid-expression
 - Subscripts: x₁ x₂ log₂ — use actual subscript characters
 - NEVER mention Python, code, tool, sympy, or any programming in your response
-- NEVER show raw code output like `(70 <= x)` or backtick expressions
-- NEVER use backticks ` in your response
+- NEVER show raw code output or expressions in brackets
+- NEVER use backtick characters in your response
 - If you used code to calculate, just show the clean numeric result — hide all code details
 
 FINAL ANSWER RULE:
@@ -2470,7 +2470,7 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
       if (fBox) answerBody.appendChild(fBox);
 
       // Parse sections from answer
-      const sections = { problem:'', concept:'', finalAnswer:'', calcExpr:'', solution:[], explanation:'' };
+      const sections = { problem:'', concept:'', finalAnswer:'', calcExpr:'', calcResult: null, solution:[], explanation:'' };
       const lines = answer.split('\n');
       let currentSection = '';
 
