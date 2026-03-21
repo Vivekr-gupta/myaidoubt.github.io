@@ -2079,6 +2079,10 @@ function cleanAnswer(text) {
     .replace(/#{1,6}\s/g,'')
     .replace(/\*\*/g,'').replace(/\*/g,'')
     .replace(/\n{3,}/g,'\n\n')
+    // Clean sympy/Python output artifacts
+    .replace(/\boo\b/g,'∞')
+    .replace(/`([^`]*)`/g,'$1')
+    .replace(/>=/g,'≥').replace(/<=/g,'≤')
     .trim();
 }
 
@@ -2246,6 +2250,10 @@ MATH FORMAT RULES:
 - Trig: sin, cos, tan, log in full
 - Keep full equation on ONE line — never break mid-expression
 - Subscripts: x₁ x₂ log₂ — use actual subscript characters
+- NEVER mention Python, code, tool, sympy, or any programming in your response
+- NEVER show raw code output like `(70 <= x)` or backtick expressions
+- NEVER use backticks ` in your response
+- If you used code to calculate, just show the clean numeric result — hide all code details
 
 FINAL ANSWER RULE:
 - Always end with: ★ Final Answer: [result]
@@ -2489,7 +2497,7 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
         else if (t === 'Explanation:') { currentSection = 'explanation'; }
         else if (currentSection === 'solution' && t) {
           // Filter out code blocks and code results from Gemini
-          if (!t.startsWith('Code:') && !t.startsWith('Result:') && !t.startsWith('```')) {
+          if (!t.startsWith('Code:') && !t.startsWith('Result:') && !t.startsWith('```') && !t.includes('Python tool') && !t.includes('sympy') && !/^`.*`$/.test(t)) {
             sections.solution.push(t);
           }
         }
