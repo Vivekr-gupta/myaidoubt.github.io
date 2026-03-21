@@ -6,8 +6,8 @@
   "observability": {
     "enabled": true
   },
-  {
-    "directory": "."
+  
+   { "directory": "."
   },
   "compatibility_flags": [
     "nodejs_compat"
