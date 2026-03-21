@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -335,10 +335,22 @@ textarea::placeholder {
   font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700;
   cursor: pointer; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
   animation: fadeUp 0.7s 0.3s both; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 .btn-solve:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(108,99,255,0.35); }
 .btn-solve:active { transform: translateY(0); }
-.btn-solve:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-solve:disabled { opacity: 0.9; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-solve-spinner {
+  display: none;
+  width: 20px; height: 20px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+.btn-solve.solving .btn-solve-spinner { display: block; }
+.btn-solve.solving #solveBtnText { opacity: 0.85; }
 
 /* Solve time */
 .solve-time { font-size: 11px; color: #6c63ff; font-weight: 600; margin-top: 2px; }
@@ -418,7 +430,83 @@ textarea::placeholder {
 }
 .share-btn:hover { background: rgba(108,99,255,0.25); }
 
-.answer-body { background: var(--answer-bg); padding: 16px; font-size: 15px; line-height: 1.8; color: var(--text); white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; word-wrap: break-word; font-weight: 450; letter-spacing: -0.1px; max-width: 100%; }
+.answer-body { background: var(--answer-bg); padding: 16px; font-size: 15px; line-height: 1.8; color: var(--text); word-break: break-word; overflow-wrap: break-word; font-weight: 450; letter-spacing: -0.1px; max-width: 100%; }
+
+/* New clean answer sections */
+.ans-problem {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  padding: 10px 14px; margin-bottom: 10px;
+  background: rgba(255,140,0,0.07);
+  border-left: 3px solid #ff8c00;
+  border-radius: 0 10px 10px 0;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.ans-concept {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  color: #a09aff; padding: 8px 14px; margin-bottom: 12px;
+  background: rgba(108,99,255,0.1);
+  border: 1px solid rgba(108,99,255,0.2);
+  border-radius: 10px; display: block;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.ans-solution {
+  font-family: 'Courier New', monospace;
+  font-size: 14.5px; line-height: 1.6;
+  font-weight: 500;
+  padding: 10px 12px; margin-bottom: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.ans-solution .step-line {
+  display: block;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--border);
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.ans-solution .step-line:last-child { border-bottom: none; }
+.ans-solution .step-line.step-label {
+  white-space: normal;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 8px 4px 2px;
+  border-bottom: none;
+  background: none;
+}
+.ans-solution .step-line.step-result {
+  background: rgba(0,229,255,0.04);
+  border-radius: 6px;
+  font-weight: 600;
+}
+.ans-arrow { color: var(--accent3); font-weight: 700; font-size: 15px; }
+.ans-explain {
+  font-size: 13px; line-height: 1.7; color: var(--muted);
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 10px; margin-bottom: 10px;
+}
+.ans-explain-toggle {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; letter-spacing: 1px;
+  color: var(--muted); cursor: pointer; margin-bottom: 6px;
+  text-transform: uppercase;
+  background: none; border: none; padding: 0;
+}
+.ans-explain-toggle:hover { color: var(--text); }
+.ans-explain-body { display: none; margin-top: 6px; }
+.ans-explain-body.open { display: block; }
 
 /* Final Answer Box - Bug 6 */
 .final-answer-box {
@@ -701,12 +789,13 @@ textarea::placeholder {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.92);
+  background: rgba(0,0,0,0.97);
   z-index: 99999;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 16px;
+  overflow: hidden;
 }
 .crop-modal.open { display: flex; }
 .crop-title { color: white; font-size: 15px; font-weight: 700; margin-bottom: 6px; text-align: center; }
@@ -724,25 +813,43 @@ textarea::placeholder {
 .crop-selection {
   position: absolute;
   border: 2px solid #00e5ff;
-  background: rgba(0,229,255,0.08);
-  box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
+  background: rgba(0,229,255,0.06);
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
   display: none;
   touch-action: none;
 }
-/* 4 edge handles */
+/* Bigger handles - easier to grab on mobile */
 .crop-handle {
   position: absolute;
   background: #00e5ff;
   border-radius: 4px;
-  cursor: pointer;
   touch-action: none;
-  opacity: 0.85;
+  opacity: 1;
 }
-.crop-handle-top    { width: 40px; height: 5px; top: -3px;    left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-.crop-handle-bottom { width: 40px; height: 5px; bottom: -3px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-.crop-handle-left   { width: 5px; height: 40px; left: -3px;   top: 50%;  transform: translateY(-50%); cursor: ew-resize; }
-.crop-handle-right  { width: 5px; height: 40px; right: -3px;  top: 50%;  transform: translateY(-50%); cursor: ew-resize; }
-.crop-actions { display: flex; gap: 12px; margin-top: 16px; width: 100%; max-width: 400px; }
+.crop-handle-top    { width: 50px; height: 7px; top: -4px;    left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.crop-handle-bottom { width: 50px; height: 7px; bottom: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.crop-handle-left   { width: 7px; height: 50px; left: -4px;   top: 50%;  transform: translateY(-50%); cursor: ew-resize; }
+.crop-handle-right  { width: 7px; height: 50px; right: -4px;  top: 50%;  transform: translateY(-50%); cursor: ew-resize; }
+/* Corner dots */
+.crop-corner { position: absolute; width: 12px; height: 12px; background: #00e5ff; border-radius: 2px; pointer-events: none; }
+.crop-corner-tl { top: -4px; left: -4px; }
+.crop-corner-tr { top: -4px; right: -4px; }
+.crop-corner-bl { bottom: -4px; left: -4px; }
+.crop-corner-br { bottom: -4px; right: -4px; }
+/* Zoom panel */
+.crop-zoom-panel {
+  width: 100%; max-width: 400px; margin-top: 10px;
+  background: #111; border: 1.5px solid rgba(0,229,255,0.35);
+  border-radius: 10px; overflow: hidden;
+}
+.crop-zoom-label {
+  font-size: 9px; color: rgba(0,229,255,0.7); text-align: center;
+  padding: 4px; letter-spacing: 1px; font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  border-bottom: 1px solid rgba(0,229,255,0.15);
+}
+.crop-zoom-canvas { display: block; max-width: 100%; max-height: 100px; margin: 0 auto; }
+.crop-actions { display: flex; gap: 12px; margin-top: 12px; width: 100%; max-width: 400px; }
 .crop-btn-use { flex: 1; background: linear-gradient(135deg,#6c63ff,#ff6b9d); border: none; border-radius: 12px; padding: 13px; color: white; font-size: 14px; font-weight: 700; cursor: pointer; }
 .crop-btn-skip { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 13px; color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer; }
 
@@ -1273,6 +1380,7 @@ if (!sessionStorage.getItem('splashShown')) {
 
   <!-- Solve Button -->
   <button class="btn-solve" id="solveBtn" onclick="solveDoubt()">
+    <div class="btn-solve-spinner" id="solveBtnSpinner"></div>
     <span id="solveBtnText">Get Solution 🚀</span>
   </button>
 
@@ -1361,7 +1469,7 @@ if (!sessionStorage.getItem('splashShown')) {
 let selectedSubject = 'Physics';
 let selectedClass = '11-12';
 let currentLang = 'en';
-let currentTheme = 'light';
+let currentTheme = 'dark';
 let photoBase64 = null;
 let photoMediaType = null;
 let history = [];
@@ -1537,6 +1645,7 @@ function openCropModal(src, file) {
     // Pre-select center 80% box
     cropBox = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
     renderCropBox();
+    showCropZoom();
   };
 
   // Attach handle drag listeners
@@ -1612,6 +1721,7 @@ function onHandleDragMove(e) {
     cropBox.w = newW;
   }
   renderCropBox();
+  showCropZoom();
 }
 
 function stopHandleDrag() {
@@ -1623,11 +1733,8 @@ function stopHandleDrag() {
 function showCropZoom() {
   const img = document.getElementById('cropImage');
   const container = document.getElementById('cropContainer');
-  if (!img || !container) return;
-
-  // Remove old preview if exists
-  const old = document.getElementById('cropZoomPreview');
-  if (old) old.remove();
+  const canvas = document.getElementById('cropZoomCanvas');
+  if (!img || !container || !canvas) return;
 
   const scaleX = img.naturalWidth  / container.clientWidth;
   const scaleY = img.naturalHeight / container.clientHeight;
@@ -1638,32 +1745,12 @@ function showCropZoom() {
 
   if (sw < 10 || sh < 10) return;
 
-  const canvas = document.createElement('canvas');
-  const maxW = 340, maxH = 120;
-  const ratio = Math.min(maxW / sw, maxH / sh);
-  canvas.width = sw * ratio;
-  canvas.height = sh * ratio;
+  const panelW = Math.min(container.clientWidth, 400);
+  const maxH = 130;
+  const ratio = Math.min(panelW / sw, maxH / sh);
+  canvas.width  = Math.round(sw * ratio);
+  canvas.height = Math.round(sh * ratio);
   canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-
-  const preview = document.createElement('div');
-  preview.id = 'cropZoomPreview';
-  preview.style.cssText = `
-    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
-    background:#111; border:2px solid rgba(0,229,255,0.5);
-    border-radius:10px; overflow:hidden; z-index:100001;
-    box-shadow:0 4px 20px rgba(0,0,0,0.6);
-    max-width:calc(100vw - 32px);
-  `;
-  const label = document.createElement('div');
-  label.style.cssText = 'font-size:9px;color:rgba(0,229,255,0.7);text-align:center;padding:3px;letter-spacing:1px;font-family:Outfit,sans-serif;font-weight:700;';
-  label.textContent = 'CROP PREVIEW';
-  preview.appendChild(label);
-  canvas.style.cssText = 'display:block;max-width:100%;';
-  preview.appendChild(canvas);
-  document.body.appendChild(preview);
-
-  // Auto hide after 3s
-  setTimeout(() => { if (preview.parentNode) preview.remove(); }, 3000);
 }
 
 function closeCropListeners() {
@@ -1695,7 +1782,6 @@ function applyCrop() {
   document.getElementById('photoPreviewWrap').style.display = 'block';
   document.getElementById('cropModal').classList.remove('open');
   closeCropListeners();
-  const zp = document.getElementById('cropZoomPreview'); if(zp) zp.remove();
   showToast('✅ Photo cropped!');
   detectQuestionFromPhoto();
 }
@@ -1897,6 +1983,27 @@ ${pad(den)}
   });
 }
 
+// Safe Calculator — evaluates AI-provided CALC expression using real JS math
+function safeCalc(expr) {
+  if (!expr) return null;
+  try {
+    const clean = expr
+      .replace(/\^/g, '**')
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/')
+      .trim();
+    // Block anything dangerous
+    if (/[a-zA-Z]/.test(clean.replace(/Math\.(PI|sqrt|abs|floor|ceil|pow|log|sin|cos|tan|atan|asin|acos)/g, ''))) return null;
+    if (clean.includes('window') || clean.includes('document') || clean.includes('fetch') || clean.includes('eval')) return null;
+    const result = new Function('Math', 'return ' + clean)(Math);
+    if (typeof result !== 'number' || !isFinite(result)) return null;
+    // Round to 6 significant figures
+    return parseFloat(result.toPrecision(6));
+  } catch(e) {
+    return null;
+  }
+}
+
 function cleanAnswer(text) {
   // Remove DeepSeek R1 thinking block
   text = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
@@ -1968,6 +2075,8 @@ async function solveDoubt() {
   answerCard.style.display = 'none';
   errorCard.style.display = 'none';
   btn.disabled = true;
+  btn.classList.add('solving');
+  document.getElementById('solveBtnText').textContent = 'Solving...';
   loading.style.display = 'block';
   const solveStartTime = Date.now();
 
@@ -1995,50 +2104,55 @@ async function solveDoubt() {
     const isFlash = currentMode === 'flash';
     const isLearn = currentMode === 'learn';
 
-    const systemPrompt = isLearn
-      ? `You are an expert tutor for all subjects, helping ${selectedClass} students in India. ${langInstruction}
-${ownerInstruction}
-
-LEARN MODE — STEP BY STEP REVEAL:
-SMART DETECTION: If question has numbers/equations → show calculation below each step label. If theory → 1-2 line explanation per step.
-
-Output in EXACTLY this format:
-Problem: [one line]
-Concept Used: [formula or concept — one line]
-Step 1: [what you're doing — max 6 words]
-[calculation or explanation on this line]
-Step 2: [what you're doing — max 6 words]
-[calculation or explanation on this line]
-★ Final Answer: [result]
-
-RULES:
-- Max 5 steps
-- No filler text, no intro, no outro
-- Each step label on its own line, content on next line
-ZERO filler text. ZERO LaTeX. ZERO dollar signs. ZERO backslashes.
-Powers: use x², x³. Square root: √(x). Infinity: ∞. Fractions: (a)/(b).`
-
-      : isFlash
-      ? `You are an expert tutor for all subjects. ${langInstruction}
-${ownerInstruction}
-QUICK ANSWER MODE:
-${(selectedSubject === 'Maths' || selectedSubject === 'Physics') ? `MATHS/PHYSICS STRICT MODE:
-- First solve the problem completely in your head.
-- Then output ONLY this single line: "★ Final Answer: [answer]"
-- Nothing else. No steps. No explanation. No intro. Just the final answer line.
-- Example: "★ Final Answer: x = -2, -3" or "★ Final Answer: 5"` 
-: `Give a direct, concise answer in 2-4 lines maximum.
-No long paragraphs. Key point only. No intro.`}
-ZERO LaTeX. ZERO dollar signs. ZERO backslashes. ZERO {braces}.
-Powers: use x², x³. Square root: √(x). Infinity: ∞. Trig: sin, cos, tan. Fractions: (a)/(b).`
-
-      : `You are an expert tutor for all subjects, helping ${selectedClass} students in India. ${langInstruction}
+    const systemPrompt = `You are an expert tutor for all subjects, helping ${selectedClass} students in India. ${langInstruction}
 ${ownerInstruction}
 
 LEVEL: ${level}
 
+EXPERT SOLVER SYSTEM (follow strictly — accuracy over speed):
+You are an expert academic solver for JEE, NEET, Foundation, and all academic subjects.
+
+━━ PHASE 1: UNDERSTAND (before writing anything) ━━
+- Identify subject and topic precisely.
+- Extract all given data correctly. Do not miss or misread values.
+- Identify exactly what is asked.
+- Choose the correct concept or method. Do NOT apply random formulas.
+- Subject rules:
+  • Physics: check direction, sign convention, and units carefully. Use physical meaning.
+  • Mathematics: avoid invalid substitutions. Use standard identities and known results.
+  • Chemistry: use correct laws, units, and reaction logic.
+  • Biology: use NCERT-based concepts.
+- If problem involves rotation, graphs, inequalities, or tricky concepts → double-check assumptions.
+
+━━ PHASE 2: SOLVE ━━
+- Solve step by step using correct formulas, logic, or theory.
+- Do NOT mix unrelated concepts.
+- Keep solution clear, logical, and exam-level.
+- ARITHMETIC RULES (follow strictly — violations cause wrong answers):
+  • Each operation is done ONCE — never apply division or multiplication twice on same value.
+  • Convert ALL fractions to decimals immediately: 45/360 = 0.125, 1/3 = 0.333, etc. Never keep fractions in calculation steps.
+  • After converting to decimal, multiply/divide with decimals only — no mixed fraction+decimal steps.
+  • Every step MUST end with = [computed number]. Never leave expression without result.
+  • Final answer MUST be the exact same number as last computed result in solution. No exceptions.
+  • Before writing final answer, look at your last computed number and copy it exactly.
+
+━━ PHASE 3: VERIFY (very important — do this silently) ━━
+- Recheck entire solution independently.
+- Ask yourself: Is any assumption wrong? Did I choose the correct concept? Is there a simpler or more correct method?
+- Verify units, calculations, and logic.
+- Check if answer makes sense conceptually.
+- ARITHMETIC CHECK: Trace each step — was any division or multiplication applied twice? If yes → fix it.
+- Plug final answer back into original equation/formula to confirm it satisfies the condition.
+- If mistake found → fix and update final answer before showing.
+
 THINK FIRST:
 Before solving, analyze the problem carefully. Identify the correct method or theorem. Then solve step by step.
+CRITICAL CALCULATION RULE:
+- NEVER use a memorized or assumed answer for any problem. Always derive the answer fresh by computing each step.
+- Treat every problem as if you have never seen it before — even if it looks familiar.
+- Do NOT write the final answer until you have computed it step by step in the solution.
+- The final answer must come FROM the solution steps, not the other way around.
+- If your solution steps give X but you "feel" the answer should be Y — trust the steps, not the feeling.
 
 AUTO DETECT RULE (very important):
 - First identify the ACTUAL subject of the question (Maths, Physics, Chemistry, Biology, etc.)
@@ -2061,21 +2175,35 @@ TYPE B — Pure theory, definition, concept explanation → use THEORY FORMAT
 CALCULATION FORMAT (TYPE A):
 Problem: [restate in one line]
 Concept Used: [formula or theorem — one line]
-Step 1: [what you are doing — max 6 words]
-[calculation on next line]
-Step 2: [what you are doing — max 6 words]
-[calculation on next line]
-Step 3: [what you are doing — max 6 words]
-[calculation on next line]
-★ Final Answer: [result clearly]
+★ Final Answer: [result clearly — show this FIRST before steps]
+CALC: [the final math expression using only numbers and operators: + - * / ^ ( ) and Math.PI, Math.sqrt() — no variables, no text]
+Solution:
+→ [2-3 word label e.g. "Given values", "Apply formula", "Substitute", "Simplify", "Calculate"]
+[equation on one line]
+→ [next label]
+[next equation on one line]
+⇒ [final result]
+Explanation:
+[simple 2-3 line explanation for beginners only]
+
+CALC LINE RULES:
+- CALC line must be a valid JavaScript math expression that can be evaluated directly
+- Use * for multiplication, / for division, ** for powers, Math.PI for π, Math.sqrt() for √
+- Example: CALC: (45/360) * Math.PI * 12**2
+- Example: CALC: (1/2) * 9.8 * 4**2
+- Example: CALC: Math.sqrt(144)
+- Only include CALC line for TYPE A (calculation) questions — NOT for theory
 
 THEORY FORMAT (TYPE B):
 Problem: [restate in one line]
 Concept Used: [key concept — one line]
-Step 1: [clear explanation — 1-2 lines max]
-Step 2: [clear explanation — 1-2 lines max]
-Step 3: [clear explanation — 1-2 lines max]
 ★ Final Answer: [conclusion in one line]
+Solution:
+[key point 1]
+[key point 2]
+[key point 3]
+Explanation:
+[simple 2-3 line explanation]
 
 CONSISTENCY RULES (always follow):
 - NEVER mix formats — pick one and stick to it
@@ -2142,107 +2270,310 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
     const answerBody = document.getElementById('answerBody');
     answerBody.innerHTML = '';
 
-    // LEARN MODE - step by step reveal
+    // LEARN MODE - reveal explanation sections step by step
     if (currentMode === 'learn') {
-      const lines = answer.split('\n').filter(l => l.trim());
-      let stepIndex = 0;
-      let revealed = 0;
-
-      function revealNext() {
-        if (revealed >= lines.length) return;
-        const line = lines[revealed];
-        const trimmed = line.trim();
-        const div = document.createElement('div');
-        if (trimmed.startsWith('★ Final Answer:') || trimmed.startsWith('Final Answer:')) {
-          div.className = 'final-answer-box';
-          const ansText = trimmed.replace('★ ', '');
-          div.innerHTML = `<span class="fa-text">${ansText}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
-        } else if (trimmed.startsWith('Concept Used:')) {
-          div.className = 'concept-box';
-          div.textContent = trimmed;
-        } else if (trimmed.startsWith('Problem:')) {
-          div.className = 'problem-box';
-          div.textContent = trimmed;
-        } else if (trimmed.startsWith('★')) {
-          div.className = 'key-point';
-          div.textContent = trimmed;
-        } else {
-          div.textContent = line;
-          div.style.marginBottom = '4px';
+      // Parse same sections as explanation mode
+      const sections = { problem:'', concept:'', finalAnswer:'', calcExpr:'', solution:[], explanation:'' };
+      const lines = answer.split('\n');
+      let sec = '';
+      // First pass — extract CALC anywhere
+      lines.forEach(line => { const t = line.trim(); if (t.startsWith('CALC:')) sections.calcExpr = t.replace('CALC:','').trim(); });
+      // Second pass — parse sections
+      lines.forEach(line => {
+        const t = line.trim();
+        if (t.startsWith('Problem:')) { sections.problem = t.replace('Problem:','').trim(); }
+        else if (t.startsWith('Concept Used:')) { sections.concept = t.replace('Concept Used:','').trim(); }
+        else if (t.startsWith('★ Final Answer:') || t.startsWith('Final Answer:')) {
+          sections.finalAnswer = t.replace('★ Final Answer:','').replace('Final Answer:','').trim();
         }
-        div.style.opacity = '0';
-        div.style.transition = 'opacity 0.4s ease';
-        answerBody.appendChild(div);
-        setTimeout(() => div.style.opacity = '1', 30);
-        revealed++;
+        else if (t.startsWith('CALC:')) { /* already parsed */ }
+        else if (t === 'Solution:') { sec = 'solution'; }
+        else if (t === 'Explanation:') { sec = 'explanation'; }
+        else if (sec === 'solution' && t) { sections.solution.push(t); }
+        else if (sec === 'explanation' && t) { sections.explanation += t + ' '; }
+        else if (!sec && t && !t.startsWith('Problem:') && !t.startsWith('Concept Used:') && !t.startsWith('★') && !t.startsWith('Step ') && !t.startsWith('CALC:')) {
+          sections.solution.push(t);
+        }
+      });
 
-        // If more lines remain and not final answer yet, show Next button
-        const isFinal = line.startsWith('★ Final Answer:') || line.startsWith('Final Answer:');
-        if (!isFinal && revealed < lines.length) {
+      // 🔢 CALCULATOR OVERRIDE
+      if (sections.calcExpr) {
+        const calcResult = safeCalc(sections.calcExpr);
+        if (calcResult !== null) {
+          const unitMatch = sections.finalAnswer.match(/[a-zA-Z°²³/%\s]+$/);
+          const units = unitMatch ? unitMatch[0].trim() : '';
+          sections.finalAnswer = calcResult + (units ? ' ' + units : '');
+        }
+      }
+
+      // Build reveal queue — each item is a DOM element
+      const queue = [];
+
+      if (sections.problem) {
+        const el = document.createElement('div');
+        el.className = 'ans-problem';
+        el.textContent = '📘 ' + sections.problem;
+        queue.push({ el, label: '💡 Show Key Idea' });
+      }
+      if (sections.concept) {
+        const el = document.createElement('div');
+        el.className = 'ans-concept';
+        el.textContent = '💡 Key Idea: ' + sections.concept;
+        queue.push({ el, label: '⚡ Show Final Answer' });
+      }
+      if (sections.finalAnswer) {
+        const el = document.createElement('div');
+        el.className = 'final-answer-box';
+        el.innerHTML = `<span class="fa-text">⚡ Final Answer: ${sections.finalAnswer}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
+        queue.push({ el, label: '🧩 Show Solution' });
+      }
+      if (sections.solution.length > 0) {
+        const isMathSci = ['Maths', 'Physics', 'Chemistry'].includes(selectedSubject);
+        // Split solution lines into 3 equal parts
+        const total = sections.solution.length;
+        const partSize = Math.ceil(total / 3);
+        const parts = [];
+        for (let i = 0; i < 3; i++) {
+          const chunk = sections.solution.slice(i * partSize, (i + 1) * partSize);
+          if (chunk.length > 0) parts.push(chunk);
+        }
+        parts.forEach((chunk, partIdx) => {
+          const solWrap = document.createElement('div');
+          if (partIdx === 0) {
+            const solLabel = document.createElement('div');
+            solLabel.style.cssText = 'font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:12px 0 6px;';
+            solLabel.textContent = '🧩 SOLUTION';
+            solWrap.appendChild(solLabel);
+          }
+          const sol = document.createElement('div');
+          sol.className = 'ans-solution';
+          sol.style.marginBottom = '4px';
+          if (!isMathSci) { sol.style.fontFamily = "'Inter', sans-serif"; sol.style.fontSize = '14px'; sol.style.fontWeight = '500'; }
+          chunk.forEach(line => {
+            const span = document.createElement('span');
+            span.className = 'step-line';
+            span.innerHTML = line.replace(/⇒/g, '<span class="ans-arrow">⇒</span>');
+            sol.appendChild(span);
+          });
+          solWrap.appendChild(sol);
+          const isLast = partIdx === parts.length - 1;
+          queue.push({ el: solWrap, label: isLast ? (sections.explanation.trim() ? '🔍 Show Explanation' : null) : `🧩 Next Part (${partIdx + 2}/${parts.length})` });
+        });
+      }
+      if (sections.explanation.trim()) {
+        const expWrap = document.createElement('div');
+        const toggle = document.createElement('button');
+        toggle.className = 'ans-explain-toggle';
+        toggle.innerHTML = '🔍 Explanation <span style="font-size:10px;margin-left:4px;">▼ show</span>';
+        const expBody = document.createElement('div');
+        expBody.className = 'ans-explain-body';
+        expBody.textContent = sections.explanation.trim();
+        toggle.onclick = () => {
+          expBody.classList.toggle('open');
+          toggle.querySelector('span').textContent = expBody.classList.contains('open') ? '▲ hide' : '▼ show';
+        };
+        expWrap.appendChild(toggle);
+        expWrap.appendChild(expBody);
+        queue.push({ el: expWrap, label: null });
+      }
+
+      let qIdx = 0;
+      function revealNext() {
+        if (qIdx >= queue.length) return;
+        const { el, label } = queue[qIdx];
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.4s ease';
+        answerBody.appendChild(el);
+        setTimeout(() => el.style.opacity = '1', 30);
+        qIdx++;
+        // Scroll to newly revealed element
+        setTimeout(() => {
+          const rect = el.getBoundingClientRect();
+          window.scrollTo({ top: window.scrollY + rect.top - 80, behavior: 'smooth' });
+        }, 60);
+        // Show next button if more remain
+        if (qIdx < queue.length && label) {
           const nextBtn = document.createElement('button');
           nextBtn.className = 'learn-next-btn';
-          nextBtn.textContent = revealed === 1 ? '▶ Show Step 1' : `▶ Next Step (${revealed})`;
+          nextBtn.textContent = '▶ ' + label;
           nextBtn.onclick = () => { nextBtn.remove(); revealNext(); };
           answerBody.appendChild(nextBtn);
         }
-        answerBody.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-      revealNext(); // reveal Problem first automatically
+      revealNext(); // auto reveal Problem first
     }
-    // Quick Answer mode - wrap entire answer in highlight box
+    // Quick Answer mode - run full explanation in background, show only Final Answer
     else if (currentMode === 'flash') {
-      const box = document.createElement('div');
-      box.className = 'final-answer-box';
-      box.style.fontSize = '16px';
-      box.style.lineHeight = '1.8';
-      box.textContent = answer.replace('★ ', '').replace('Final Answer:', '').trim();
-      answerBody.appendChild(box);
+      // Extract Final Answer from full explanation response
+      let flashAnswer = '';
+      let flashCalc = '';
+      const flashLines = answer.split('\n');
+      for (const line of flashLines) {
+        const t = line.trim();
+        if (t.startsWith('★ Final Answer:') || t.startsWith('Final Answer:')) {
+          flashAnswer = t.replace('★ Final Answer:', '').replace('Final Answer:', '').trim();
+        }
+        if (t.startsWith('CALC:')) { flashCalc = t.replace('CALC:','').trim(); }
+      }
+      // Calculator override for flash mode
+      if (flashCalc) {
+        const calcResult = safeCalc(flashCalc);
+        if (calcResult !== null) {
+          const unitMatch = flashAnswer.match(/[a-zA-Z°²³/%\s]+$/);
+          const units = unitMatch ? unitMatch[0].trim() : '';
+          flashAnswer = calcResult + (units ? ' ' + units : '');
+        }
+      }
+      // Fallback if no Final Answer found
+      if (!flashAnswer) flashAnswer = answer.replace('★ ', '').trim();
+
+      const fa = document.createElement('div');
+      fa.className = 'final-answer-box';
+      fa.innerHTML = `<span class="fa-text">⚡ Final Answer: ${flashAnswer}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
+      answerBody.appendChild(fa);
     } else {
-      // Add formula box above solution
+      // NEW CLEAN FORMAT RENDERER
       const fBox = createFormulaBox(answer);
       if (fBox) answerBody.appendChild(fBox);
-      // Pre-process: merge "Final Answer:" on one line with next line if empty answer
-      let rawLines = answer.split('\n');
-      let lines = [];
-      for (let i = 0; i < rawLines.length; i++) {
-        const line = rawLines[i].trim();
-        if ((line === '★ Final Answer:' || line === 'Final Answer:') && i + 1 < rawLines.length) {
-          const nextLine = rawLines[i+1].trim();
-          if (nextLine && !nextLine.startsWith('Step') && !nextLine.startsWith('Problem')) {
-            lines.push((line.startsWith('★') ? '★ Final Answer: ' : 'Final Answer: ') + nextLine);
-            i++; continue;
-          }
-        }
-        lines.push(rawLines[i]);
-      }
+
+      // Parse sections from answer
+      const sections = { problem:'', concept:'', finalAnswer:'', calcExpr:'', solution:[], explanation:'' };
+      const lines = answer.split('\n');
+      let currentSection = '';
+
+      // First pass — extract CALC anywhere in answer
       lines.forEach(line => {
-        const div = document.createElement('div');
-        const trimmed = line.trim();
-        if (trimmed.startsWith('★ Final Answer:') || trimmed.startsWith('Final Answer:')) {
-          div.className = 'final-answer-box';
-          const ansText = trimmed.replace('★ ', '');
-          const answerText = ansText.replace('Final Answer:', '').trim();
-          if (answerText) {
-            div.innerHTML = `<span class="fa-text">${ansText}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
-          } else {
-            div.innerHTML = `<span class="fa-text">${ansText}</span>`;
-          }
-        } else if (trimmed.startsWith('Concept Used:')) {
-          div.className = 'concept-box';
-          div.textContent = trimmed;
-        } else if (trimmed.startsWith('★') || trimmed.startsWith('Key Idea:')) {
-          div.className = 'key-point';
-          div.textContent = trimmed;
-        } else if (trimmed.startsWith('Problem:')) {
-          div.className = 'problem-box';
-          div.textContent = trimmed;
-        } else {
-          div.textContent = line;
-          div.style.marginBottom = trimmed === '' ? '8px' : '2px';
-        }
-        answerBody.appendChild(div);
+        const t = line.trim();
+        if (t.startsWith('CALC:')) { sections.calcExpr = t.replace('CALC:','').trim(); }
       });
+
+      // Second pass — parse all other sections
+      lines.forEach(line => {
+        const t = line.trim();
+        if (t.startsWith('Problem:')) { sections.problem = t.replace('Problem:','').trim(); }
+        else if (t.startsWith('Concept Used:')) { sections.concept = t.replace('Concept Used:','').trim(); }
+        else if (t.startsWith('★ Final Answer:') || t.startsWith('Final Answer:')) {
+          sections.finalAnswer = t.replace('★ Final Answer:','').replace('Final Answer:','').trim();
+        }
+        else if (t.startsWith('CALC:')) { /* already parsed */ }
+        else if (t === 'Solution:') { currentSection = 'solution'; }
+        else if (t === 'Explanation:') { currentSection = 'explanation'; }
+        else if (currentSection === 'solution' && t) { sections.solution.push(t); }
+        else if (currentSection === 'explanation' && t) { sections.explanation += t + ' '; }
+        else if (!currentSection && t && !t.startsWith('Problem:') && !t.startsWith('Concept Used:') && !t.startsWith('★') && !t.startsWith('Step ') && !t.startsWith('CALC:')) {
+          sections.solution.push(t);
+        }
+      });
+
+      // 🔢 CALCULATOR OVERRIDE — replace AI's answer with real computed result
+      if (sections.calcExpr) {
+        const calcResult = safeCalc(sections.calcExpr);
+        if (calcResult !== null) {
+          // Preserve units/text after the number in finalAnswer
+          const unitMatch = sections.finalAnswer.match(/[a-zA-Z°²³/%\s]+$/);
+          const units = unitMatch ? unitMatch[0].trim() : '';
+          sections.finalAnswer = calcResult + (units ? ' ' + units : '');
+        }
+      }
+
+      // Render Problem
+      if (sections.problem) {
+        const p = document.createElement('div');
+        p.className = 'ans-problem';
+        p.textContent = '📘 ' + sections.problem;
+        answerBody.appendChild(p);
+      }
+
+      // Render Concept
+      if (sections.concept) {
+        const c = document.createElement('div');
+        c.className = 'ans-concept';
+        c.textContent = '💡 Key Idea: ' + sections.concept;
+        answerBody.appendChild(c);
+      }
+
+      // Render Final Answer FIRST (highlighted)
+      if (sections.finalAnswer) {
+        const fa = document.createElement('div');
+        fa.className = 'final-answer-box';
+        fa.innerHTML = `<span class="fa-text">⚡ Final Answer: ${sections.finalAnswer}</span><button class="copy-ans-btn" onclick="copyFinalAnswer(this)" title="Copy answer">📋</button>`;
+        answerBody.appendChild(fa);
+      }
+
+      // Render Solution (equations only)
+      if (sections.solution.length > 0) {
+        const solLabel = document.createElement('div');
+        solLabel.setAttribute('data-sol-anchor', '1');
+        solLabel.style.cssText = 'font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:12px 0 6px;';
+        solLabel.textContent = '🧩 SOLUTION';
+        answerBody.appendChild(solLabel);
+
+        const sol = document.createElement('div');
+        sol.className = 'ans-solution';
+        // Use monospace only for Maths/Physics/Chemistry, normal font for theory subjects
+        const isMathSci = ['Maths', 'Physics', 'Chemistry'].includes(selectedSubject);
+        if (!isMathSci) {
+          sol.style.fontFamily = "'Inter', -apple-system, sans-serif";
+          sol.style.fontSize = '14px';
+          sol.style.fontWeight = '500';
+        }
+
+        // Smart line splitter: if a line mixes prose text before an equation, split them
+        function splitMixedLine(line) {
+          const mixMatch = line.match(/^([A-Za-z][A-Za-z\s()]{4,}?)\s*(=|:-)\s*(.+)$/);
+          if (mixMatch) {
+            const textPart = mixMatch[1].trim();
+            const sep = mixMatch[2];
+            const eqPart = mixMatch[3].trim();
+            const wordCount = textPart.split(/\s+/).length;
+            const hasDigits = /\d/.test(textPart);
+            if (wordCount >= 2 && !hasDigits) {
+              return [textPart + ' ' + sep, eqPart];
+            }
+          }
+          return [line];
+        }
+
+        sections.solution.forEach(line => {
+          const parts = splitMixedLine(line);
+          parts.forEach(part => {
+            const span = document.createElement('span');
+            // Detect small labels (Disc, Rod, Total, Step, etc. — short text ending with : or =)
+            const isLabel = /^(Disc|Rod|Total|Step|Given|Find|Using|Note|Case|From|So|Now|Here|Let|Where|Since|Therefore)[:\s]/i.test(part) && part.length < 40 && !/\d{3,}/.test(part);
+            // Detect result lines — lines with ⇒ at start or final = value
+            const isResult = part.trim().startsWith('⇒') || /=\s*[-\d.]+\s*(rad|kg|m|N|J|W|s|cm|mm|°|%|km)?[\s/^²³]*[a-z²³]?\s*$/.test(part.trim());
+            span.className = 'step-line' + (isLabel ? ' step-label' : '') + (isResult ? ' step-result' : '');
+            span.innerHTML = part.replace(/⇒/g, '<span class="ans-arrow">⇒</span>');
+            sol.appendChild(span);
+          });
+        });
+        answerBody.appendChild(sol);
+      }
+
+      // Render Explanation (collapsible)
+      if (sections.explanation.trim()) {
+        const expWrap = document.createElement('div');
+        const toggle = document.createElement('button');
+        toggle.className = 'ans-explain-toggle';
+        toggle.innerHTML = '🔍 Explanation <span style="font-size:10px;margin-left:4px;">▼ show</span>';
+        const body = document.createElement('div');
+        body.className = 'ans-explain-body';
+        body.textContent = sections.explanation.trim();
+        toggle.onclick = () => {
+          body.classList.toggle('open');
+          toggle.querySelector('span').textContent = body.classList.contains('open') ? '▲ hide' : '▼ show';
+        };
+        expWrap.appendChild(toggle);
+        expWrap.appendChild(body);
+        answerBody.appendChild(expWrap);
+      }
     }
+
+    // Add disclaimer at bottom
+    const disclaimer = document.createElement('div');
+    disclaimer.style.cssText = 'margin-top:14px;font-size:11px;color:var(--muted);text-align:center;line-height:1.5;opacity:0.7;';
+    disclaimer.textContent = 'AI can make mistakes. Always verify important answers.';
+    answerBody.appendChild(disclaimer);
     document.getElementById('answerSub').textContent = selectedSubject + ' • ' + selectedClass + ' • Just now';
     const solveTime = ((Date.now() - solveStartTime) / 1000).toFixed(1);
     document.getElementById('solveTime').textContent = '⚡ Solved in ' + solveTime + 's';
@@ -2259,8 +2590,11 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
     const historyLabel = doubt || ('📷 Photo ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
     addToHistory(historyLabel);
     setTimeout(() => {
-      const rect = answerCard.getBoundingClientRect();
-      const scrollY = window.scrollY + rect.top - 80;
+      // Scroll to Final Answer box so it's visible at top of screen
+      const finalAnswerBox = answerBody.querySelector('.final-answer-box');
+      const target = finalAnswerBox || answerCard;
+      const rect = target.getBoundingClientRect();
+      const scrollY = window.scrollY + rect.top - 20;
       window.scrollTo({ top: scrollY, behavior: 'smooth' });
     }, 100);
 
@@ -2268,6 +2602,8 @@ After solving, verify answer mentally. If wrong, correct silently. Never show ve
     showError('❌ ' + err.message);
   } finally {
     btn.disabled = false;
+    btn.classList.remove('solving');
+    document.getElementById('solveBtnText').textContent = T[currentLang].solveBtn || 'Get Solution 🚀';
     loading.style.display = 'none';
   }
 }
@@ -2319,11 +2655,11 @@ function renderHistory() {
   // Header row with Clear All
   const header = document.createElement('div');
   header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;';
-  header.innerHTML = `<span style="color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1px;">TODAY'S DOUBTS</span>
+  header.innerHTML = `<span style="color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1px;">RECENT QUESTIONS</span>
     <button onclick="clearAllHistory()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:2px 6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);">🗑️ Clear All</button>`;
   list.appendChild(header);
 
-  hist.forEach((item, idx) => {
+  function makeHistoryItem(item, idx) {
     const div = document.createElement('div');
     div.className = 'history-item';
     div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;';
@@ -2335,8 +2671,33 @@ function renderHistory() {
       </div>
       <button onclick="toggleBookmark(${idx})" style="background:none;border:none;font-size:16px;cursor:pointer;padding:4px;" title="${item.bookmarked ? 'Remove bookmark' : 'Bookmark'}">${item.bookmarked ? '⭐' : '☆'}</button>
       <button onclick="deleteHistory(${idx})" style="background:none;border:none;font-size:14px;cursor:pointer;padding:4px;color:var(--muted);" title="Delete">🗑️</button>`;
-    list.appendChild(div);
-  });
+    return div;
+  }
+
+  // Always show most recent 1
+  list.appendChild(makeHistoryItem(hist[0], 0));
+
+  // If more exist, add collapsed section
+  if (hist.length > 1) {
+    const moreWrap = document.createElement('div');
+    moreWrap.id = 'historyMoreWrap';
+    moreWrap.style.display = 'none';
+    for (let i = 1; i < hist.length; i++) {
+      moreWrap.appendChild(makeHistoryItem(hist[i], i));
+    }
+    list.appendChild(moreWrap);
+
+    const moreBtn = document.createElement('button');
+    moreBtn.id = 'historyMoreBtn';
+    moreBtn.style.cssText = 'width:100%;margin-top:6px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.5px;';
+    moreBtn.textContent = `↓ ${hist.length - 1} more doubt${hist.length - 1 > 1 ? 's' : ''}`;
+    moreBtn.onclick = () => {
+      const isOpen = moreWrap.style.display !== 'none';
+      moreWrap.style.display = isOpen ? 'none' : 'block';
+      moreBtn.textContent = isOpen ? `↓ ${hist.length - 1} more doubt${hist.length - 1 > 1 ? 's' : ''}` : '↑ Show less';
+    };
+    list.appendChild(moreBtn);
+  }
 }
 
 function loadHistory(idx) {
@@ -2875,7 +3236,7 @@ if ('serviceWorker' in navigator) {
   <!-- Crop Modal - Feature 2 -->
   <div class="crop-modal" id="cropModal">
     <div class="crop-title">✂️ Crop Your Question</div>
-    <div class="crop-subtitle">Drag the edges to adjust the crop area</div>
+    <div class="crop-subtitle">Drag edges to select the question area</div>
     <div class="crop-container" id="cropContainer">
       <img id="cropImage" src="" alt="Crop">
       <div class="crop-selection" id="cropSelection">
@@ -2883,7 +3244,15 @@ if ('serviceWorker' in navigator) {
         <div class="crop-handle crop-handle-bottom" id="handleBottom"></div>
         <div class="crop-handle crop-handle-left"   id="handleLeft"></div>
         <div class="crop-handle crop-handle-right"  id="handleRight"></div>
+        <div class="crop-corner crop-corner-tl"></div>
+        <div class="crop-corner crop-corner-tr"></div>
+        <div class="crop-corner crop-corner-bl"></div>
+        <div class="crop-corner crop-corner-br"></div>
       </div>
+    </div>
+    <div class="crop-zoom-panel" id="cropZoomPanel">
+      <div class="crop-zoom-label">👁️ SELECTED AREA PREVIEW</div>
+      <canvas id="cropZoomCanvas" class="crop-zoom-canvas"></canvas>
     </div>
     <div class="crop-actions">
       <button class="crop-btn-use" onclick="applyCrop()">✅ Use Cropped</button>
