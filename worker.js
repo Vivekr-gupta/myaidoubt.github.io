@@ -129,23 +129,28 @@ async function callGemini(messages, apiKey) {
   );
 
   const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error?.message || 'Gemini API error');
+  if (!resp.ok) throw new Error(data.error?.message || 'Gemini API error: ' + resp.status);
 
-  // Extract text from Gemini response (may have code execution blocks)
+  // Extract text from Gemini response
   const candidate = data.candidates?.[0];
-  if (!candidate) throw new Error('No response from Gemini');
+  if (!candidate) throw new Error('No candidates in Gemini response');
 
   const parts = candidate.content?.parts || [];
   let finalText = '';
 
   for (const part of parts) {
     if (part.text) finalText += part.text;
-    // If code was executed, include the output
-    if (part.executableCode) finalText += `\nCode: ${part.executableCode.code}`;
-    if (part.codeExecutionResult) finalText += `\nResult: ${part.codeExecutionResult.output}`;
+    if (part.codeExecutionResult?.output) {
+      // Extract just the numeric result from code output and add as CALC line
+      const output = part.codeExecutionResult.output.trim();
+      const numMatch = output.match(/[\d\.]+/);
+      if (numMatch) finalText += '\nCALC_RESULT: ' + numMatch[0];
+    }
   }
 
-  // Return in OpenAI-compatible format so frontend works unchanged
+  if (!finalText.trim()) throw new Error('Empty response from Gemini');
+
+  // Return in OpenAI-compatible format
   return {
     choices: [{
       message: {
@@ -254,7 +259,7 @@ export default {
       return new Response(JSON.stringify(result), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     } catch (err) {
-      return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: { message: err.message || 'Unknown error' } }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
   }
 };
